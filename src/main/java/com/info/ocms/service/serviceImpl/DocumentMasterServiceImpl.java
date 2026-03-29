@@ -1,0 +1,73 @@
+package com.info.ocms.service.serviceImpl;
+
+import com.info.ocms.dto.FileResponse;
+import com.info.ocms.model.DocumentMaster;
+import com.info.ocms.ropository.DocumentMasterRepo;
+import com.info.ocms.service.DocumentMasterService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class DocumentMasterServiceImpl implements DocumentMasterService {
+    private final DocumentMasterRepo documentMasterRepo;
+    @Value("${app.upload.dir}")
+    private String uploadDir;
+
+    @Override
+    public FileResponse createFile(MultipartFile file,String documentType) throws  IOException{
+        DocumentMaster documentMaster=new DocumentMaster();
+        documentMaster.setDocumentGuid(UUID.randomUUID().toString());
+        documentMaster.setFileExtension(StringUtils.getFilenameExtension(file.getOriginalFilename()));
+        documentMaster.setMimeType(file.getContentType());
+        documentMaster.setUrl(saveFile(file));
+        documentMaster.setFileName(file.getOriginalFilename());
+        documentMaster.setDocumentType(documentType);
+       return mapToFileResponse(documentMasterRepo.save(documentMaster)) ;
+
+    }
+
+    @Override
+    public FileResponse getByDocumentGuide(String documentGuide) {
+       return mapToFileResponse( documentMasterRepo.findByDocumentGuid(documentGuide).orElseThrow(()->new RuntimeException("FILE NOT FOUND")));
+    }
+
+    @Override
+    public void deleteByDocumentGuide(String documentGuide) {
+        documentMasterRepo.deleteByDocumentGuid(documentGuide);
+    }
+
+
+    private String saveFile(MultipartFile file) throws IOException {
+
+        Path uploadPath= Paths.get(uploadDir);
+        if(!Files.exists(uploadPath)){
+            Files.createDirectories(uploadPath);
+        }
+        String fileName=UUID.randomUUID().toString();
+        Path filePath=uploadPath.resolve(fileName);
+        Files.copy(file.getInputStream(),filePath);
+
+        return filePath.toString();
+    }
+    private FileResponse mapToFileResponse(DocumentMaster documentMaster){
+        FileResponse fileResponse= new FileResponse();
+        fileResponse.setId(documentMaster.getId());
+        fileResponse.setDocumentGuid(documentMaster.getDocumentGuid());
+        fileResponse.setFileExtension(documentMaster.getFileExtension());
+        fileResponse.setFileName(documentMaster.getFileName());
+        fileResponse.setDocumentType(documentMaster.getDocumentType());
+        return fileResponse;
+
+    }
+
+}
