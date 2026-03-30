@@ -18,6 +18,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-  app:
+app:
     upload:
       dir: /var/myapp/uploads

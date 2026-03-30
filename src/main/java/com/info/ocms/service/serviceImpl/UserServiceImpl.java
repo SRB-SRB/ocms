@@ -55,7 +55,6 @@ public class UserServiceImpl implements UserService {
 
     public User mapToUser(UserRequest userRequest){
         User user =new User();
-        user.setId(userRequest.getId());
         user.setName(userRequest.getName());
         user.setContact(userRequest.getContact());
         user.setEmail(userRequest.getEmail());

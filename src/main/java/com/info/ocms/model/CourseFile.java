@@ -11,12 +11,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class CourseFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String documentGuid;
+
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")

@@ -1,5 +1,6 @@
 package com.info.ocms.dto;
 
+import com.info.ocms.model.CourseFile;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

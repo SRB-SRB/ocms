@@ -9,12 +9,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class FileResponse {
     private Long id;
-    private String documentGuid;
-    private String fileExtension;
-    private String fileName;
-    private String documentType;
-
+    private String documentGuide;
 
 }

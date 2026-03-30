@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -19,8 +20,8 @@ public class UserController {
     public UserResponse createUser(UserRequest userRequest){
     return userService.createUser(userRequest);
 }
-@GetMapping
-    public UserResponse getById(Long id){
+@GetMapping("/{id}")
+    public UserResponse getById(@PathVariable Long id){
     return userService.getById(id);
 }
 @GetMapping
@@ -31,8 +32,8 @@ public class UserController {
     public UserResponse updateUser(UserRequest userRequest){
     return userService.updateUser(userRequest);
 }
-@DeleteMapping
-    public void deleteUserById(Long id){
+@DeleteMapping("/{id}")
+    public void deleteUserById(@PathVariable Long id){
     userService.deleteById(id);
 }
 

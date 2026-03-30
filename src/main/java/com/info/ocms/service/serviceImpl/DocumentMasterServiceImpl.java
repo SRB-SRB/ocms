@@ -1,6 +1,7 @@
 package com.info.ocms.service.serviceImpl;
 
-import com.info.ocms.dto.FileResponse;
+import com.info.ocms.dto.DocumentMasterResponse;
+import com.info.ocms.exception.FileSizeExceededException;
 import com.info.ocms.model.DocumentMaster;
 import com.info.ocms.ropository.DocumentMasterRepo;
 import com.info.ocms.service.DocumentMasterService;
@@ -24,7 +25,10 @@ public class DocumentMasterServiceImpl implements DocumentMasterService {
     private String uploadDir;
 
     @Override
-    public FileResponse createFile(MultipartFile file,String documentType) throws  IOException{
+    public DocumentMasterResponse createFile(MultipartFile file, String documentType) throws  IOException{
+        if(file.getSize()>2*1024*1024){
+            throw new FileSizeExceededException("Flies size exceeds 2 MB");
+        }
         DocumentMaster documentMaster=new DocumentMaster();
         documentMaster.setDocumentGuid(UUID.randomUUID().toString());
         documentMaster.setFileExtension(StringUtils.getFilenameExtension(file.getOriginalFilename()));
@@ -37,7 +41,7 @@ public class DocumentMasterServiceImpl implements DocumentMasterService {
     }
 
     @Override
-    public FileResponse getByDocumentGuide(String documentGuide) {
+    public DocumentMasterResponse getByDocumentGuide(String documentGuide) {
        return mapToFileResponse( documentMasterRepo.findByDocumentGuid(documentGuide).orElseThrow(()->new RuntimeException("FILE NOT FOUND")));
     }
 
@@ -59,14 +63,14 @@ public class DocumentMasterServiceImpl implements DocumentMasterService {
 
         return filePath.toString();
     }
-    private FileResponse mapToFileResponse(DocumentMaster documentMaster){
-        FileResponse fileResponse= new FileResponse();
-        fileResponse.setId(documentMaster.getId());
-        fileResponse.setDocumentGuid(documentMaster.getDocumentGuid());
-        fileResponse.setFileExtension(documentMaster.getFileExtension());
-        fileResponse.setFileName(documentMaster.getFileName());
-        fileResponse.setDocumentType(documentMaster.getDocumentType());
-        return fileResponse;
+    private DocumentMasterResponse mapToFileResponse(DocumentMaster documentMaster){
+        DocumentMasterResponse documentMasterResponse= new DocumentMasterResponse();
+        documentMasterResponse.setId(documentMaster.getId());
+        documentMasterResponse.setDocumentGuid(documentMaster.getDocumentGuid());
+        documentMasterResponse.setFileExtension(documentMaster.getFileExtension());
+        documentMasterResponse.setFileName(documentMaster.getFileName());
+        documentMasterResponse.setDocumentType(documentMaster.getDocumentType());
+        return documentMasterResponse;
 
     }
 

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name="users")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -23,6 +24,7 @@ public class User {
     private String contact;
     private String email;
     private String password;
+    @Enumerated(EnumType.STRING)
     private GlobalRole globalRole;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true)
