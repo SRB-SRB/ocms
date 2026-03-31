@@ -1,5 +1,6 @@
 package com.info.ocms.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,9 +14,11 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CourseRequest {
+public class UpdateCourseRequest {
+    @NotNull(message = "ID cannot be null")
+    private Long id;
     private String title;
     private String description;
     private List<MultipartFile> courseFiles;
-
+    private List<Long> keepFilesIds=new ArrayList<>();
 }

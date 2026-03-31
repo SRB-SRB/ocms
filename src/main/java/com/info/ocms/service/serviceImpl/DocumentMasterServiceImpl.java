@@ -47,6 +47,8 @@ public class DocumentMasterServiceImpl implements DocumentMasterService {
 
     @Override
     public void deleteByDocumentGuide(String documentGuide) {
+        DocumentMaster documentMaster=documentMasterRepo.findByDocumentGuid(documentGuide).orElseThrow(()->new RuntimeException("File Not Found"));
+        deleteFile(documentMaster.getUrl());
         documentMasterRepo.deleteByDocumentGuid(documentGuide);
     }
 
@@ -62,6 +64,20 @@ public class DocumentMasterServiceImpl implements DocumentMasterService {
         Files.copy(file.getInputStream(),filePath);
 
         return filePath.toString();
+    }
+    private void deleteFile(String filePath){
+        try {
+            Path path = Paths.get(filePath);
+            if (Files.exists(path)) {
+                Files.delete(path);
+                System.out.println("File deleted: " + filePath);
+            } else {
+                System.out.println("File not found: " + filePath);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Failed to delete file: " + filePath);
+        }
     }
     private DocumentMasterResponse mapToFileResponse(DocumentMaster documentMaster){
         DocumentMasterResponse documentMasterResponse= new DocumentMasterResponse();

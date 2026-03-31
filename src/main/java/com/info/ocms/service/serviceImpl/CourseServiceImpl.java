@@ -3,6 +3,7 @@ package com.info.ocms.service.serviceImpl;
 import com.info.ocms.dto.CourseRequest;
 import com.info.ocms.dto.CourseResponse;
 import com.info.ocms.dto.FileResponse;
+import com.info.ocms.dto.UpdateCourseRequest;
 import com.info.ocms.model.Course;
 import com.info.ocms.model.CourseFile;
 import com.info.ocms.ropository.CourseFileRepo;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -53,6 +55,44 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional
+    public CourseResponse updateCourse(UpdateCourseRequest updateCourseRequest)throws IOException{
+        Course existingCourse=courseRepo.findById(updateCourseRequest.getId()).orElseThrow(()->new RuntimeException("Course Not Found"));
+        existingCourse.setTitle(updateCourseRequest.getTitle());
+        existingCourse.setDescription(updateCourseRequest.getDescription());
+        var existingFiles=existingCourse.getCourseFiles();
+
+
+        for(var existingFile:existingFiles){
+            if(!updateCourseRequest.getKeepFilesIds().contains(existingFile.getId())){
+                documentMasterService.deleteByDocumentGuide(existingFile.getDocumentGuid());
+                courseFileRepo.deleteById(existingFile.getId());
+
+            }
+        }
+        Iterator<CourseFile> iterator=existingFiles.iterator();
+        while (iterator.hasNext()){
+            CourseFile file=iterator.next();
+            if (!updateCourseRequest.getKeepFilesIds().contains(file.getId())) {
+                iterator.remove();
+            }
+        }
+
+        if(updateCourseRequest.getCourseFiles()!=null && !updateCourseRequest.getCourseFiles().isEmpty()){
+            List<CourseFile> newFiles=saveCourseFiles(updateCourseRequest.getCourseFiles(),existingCourse);
+            existingFiles.addAll(newFiles);
+        }
+
+        Course updated=courseRepo.save(existingCourse);
+
+        return mapToCourseResponse(updated);
+
+
+
+
+    }
+
+    @Override
+    @Transactional
     public void deleteCourseById(Long id) {
         Course course=courseRepo.findById(id).orElseThrow(()->new RuntimeException("Course Not Found"));
         for (CourseFile courseFile:course.getCourseFiles()){
@@ -60,6 +100,7 @@ public class CourseServiceImpl implements CourseService {
         }
         courseRepo.deleteById(id);
     }
+
 
 
     private Course mapToCourse(CourseRequest courseRequest){
