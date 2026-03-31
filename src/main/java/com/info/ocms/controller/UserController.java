@@ -17,7 +17,7 @@ public class UserController {
     private final UserService userService;
 
 @PostMapping
-    public UserResponse createUser(UserRequest userRequest){
+    public UserResponse createUser(@RequestBody UserRequest userRequest){
     return userService.createUser(userRequest);
 }
 @GetMapping("/{id}")
@@ -29,7 +29,7 @@ public class UserController {
     return userService.getAll();
 }
 @PutMapping
-    public UserResponse updateUser(UserRequest userRequest){
+    public UserResponse updateUser(@RequestBody UserRequest userRequest){
     return userService.updateUser(userRequest);
 }
 @DeleteMapping("/{id}")

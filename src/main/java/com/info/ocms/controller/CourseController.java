@@ -6,8 +6,11 @@ import com.info.ocms.dto.UpdateCourseRequest;
 import com.info.ocms.service.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
@@ -17,8 +20,8 @@ import java.util.List;
 public class CourseController {
     private final CourseService courseService;
 
-    @PostMapping
-    public CourseResponse createCourse(CourseRequest courseRequest)throws IOException {
+    @PostMapping(consumes= MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CourseResponse createCourse(@ModelAttribute CourseRequest courseRequest)throws IOException {
        return courseService.createCourse(courseRequest);
     }
     @GetMapping("/{id}")
@@ -29,9 +32,9 @@ public class CourseController {
     public List<CourseResponse> getAllCourse(){
         return courseService.getAllCourses();
     }
-    @PutMapping
 
-    public CourseResponse updateCourse(@Valid UpdateCourseRequest updateCourseRequest)throws IOException{
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CourseResponse updateCourse(@Valid @ModelAttribute UpdateCourseRequest updateCourseRequest)throws IOException{
         return courseService.updateCourse(updateCourseRequest);
     }
     @DeleteMapping("/{id}")

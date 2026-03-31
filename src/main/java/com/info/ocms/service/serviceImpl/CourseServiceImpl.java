@@ -102,7 +102,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
 
-
     private Course mapToCourse(CourseRequest courseRequest){
         Course course =new Course();
         course.setTitle(courseRequest.getTitle());
@@ -125,9 +124,8 @@ public class CourseServiceImpl implements CourseService {
         }
         courseResponse.setCourseFiles(fileResponses);
         return courseResponse;
-
-
     }
+
     private List<CourseFile> saveCourseFiles(List<MultipartFile> files, Course course)throws IOException{
         List<CourseFile> courseFiles=new ArrayList<>();
         for(MultipartFile file: files){
