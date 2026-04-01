@@ -87,7 +87,6 @@ public class DocumentMasterServiceImpl implements DocumentMasterService {
         documentMasterResponse.setFileName(documentMaster.getFileName());
         documentMasterResponse.setDocumentType(documentMaster.getDocumentType());
         return documentMasterResponse;
-
     }
 
 }

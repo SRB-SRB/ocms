@@ -30,6 +30,7 @@ public class AssignmentController {
     public List<AssignmentResponse> getAllAssignment(){
         return assignmentService.getAllAssignments();
     }
+
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public AssignmentResponse updateAssignment(@ModelAttribute UpdateAssignmentRequest updateAssignmentRequest)throws IOException{
         return assignmentService.updateAssignment(updateAssignmentRequest);

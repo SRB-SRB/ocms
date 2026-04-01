@@ -14,12 +14,15 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "course")
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
     private String description;
+
+
 
     @OneToMany(mappedBy ="course",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Enrollment> enrollments=new ArrayList<>();

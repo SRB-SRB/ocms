@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "submitted_assignment_file")
 public class SubmittedAssignmentFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

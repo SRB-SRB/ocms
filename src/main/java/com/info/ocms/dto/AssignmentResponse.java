@@ -18,5 +18,7 @@ public class AssignmentResponse {
     private String description;
     private String creationDate;
     private String dueDate;
+    private String courseName;
     private List<FileResponse> assignmentFiles;
+
 }

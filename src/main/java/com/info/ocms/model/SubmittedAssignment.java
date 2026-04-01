@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "submitted_assignment")
 public class SubmittedAssignment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +24,10 @@ public class SubmittedAssignment {
 
     @OneToMany(mappedBy = "submittedAssignment",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<SubmittedAssignmentFile> submittedAssignmentFiles=new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assignment_id")
+    private Assignment assignment;
 
 
 

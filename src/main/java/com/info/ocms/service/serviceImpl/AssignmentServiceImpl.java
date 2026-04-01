@@ -7,6 +7,7 @@ import com.info.ocms.model.Course;
 import com.info.ocms.model.CourseFile;
 import com.info.ocms.ropository.AssignmentFileRepo;
 import com.info.ocms.ropository.AssignmentRepo;
+import com.info.ocms.ropository.CourseRepo;
 import com.info.ocms.service.AssignmentService;
 import com.info.ocms.service.DocumentMasterService;
 import lombok.RequiredArgsConstructor;
@@ -29,14 +30,17 @@ public class AssignmentServiceImpl implements AssignmentService {
     private final AssignmentFileRepo assignmentFileRepo;
     private final DocumentMasterService documentMasterService;
     private final SqlDataSourceScriptDatabaseInitializer dataSourceScriptDatabaseInitializer;
+    private final CourseRepo courseRepo;
 
     @Override
     public AssignmentResponse createAssignment(AssignmentRequest assignmentRequest) throws IOException {
         Assignment assignment=mapToAssignment(assignmentRequest);
+        assignment.setCourse(courseRepo.findById(assignmentRequest.getCourseId()).orElseThrow(()->new RuntimeException("Course Not Found")));
         Assignment savedAssignment=assignmentRepo.save(assignment);
         if(assignmentRequest.getAssignmentFiles()!=null && !assignmentRequest.getAssignmentFiles().isEmpty()){
             assignment.setAssignmentFiles(saveAssignmentFiles(assignmentRequest.getAssignmentFiles(),savedAssignment));
         }
+
         return mapToAssignmentResponse(savedAssignment);
     }
 
@@ -55,6 +59,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    @Transactional
     public AssignmentResponse updateAssignment(UpdateAssignmentRequest updateAssignmentRequest) throws IOException{
         Assignment existingAssignment=assignmentRepo.findById(updateAssignmentRequest.getId()).orElseThrow(()->new RuntimeException("Assignment Not Found"));
         existingAssignment.setTitle(updateAssignmentRequest.getTitle());
@@ -84,6 +89,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    @Transactional
     public void deleteAssignmentById(Long id) {
         Assignment assignment=assignmentRepo.findById(id).orElseThrow(()-> new RuntimeException("Assignment Not Found"));
         for(AssignmentFile assignmentFile:assignment.getAssignmentFiles()){
@@ -116,6 +122,9 @@ public class AssignmentServiceImpl implements AssignmentService {
             fileResponses.add(fileResponse);
         }
         assignmentResponse.setAssignmentFiles(fileResponses);
+//        courseRepo.findById(assignment.getId()).orElseThrow(()->new RuntimeException("Course Not Found"))
+       Course course= assignment.getCourse();
+        assignmentResponse.setCourseName(course.getTitle());
         return assignmentResponse;
     }
     private List<AssignmentFile> saveAssignmentFiles(List<MultipartFile> files, Assignment assignment)throws IOException {
