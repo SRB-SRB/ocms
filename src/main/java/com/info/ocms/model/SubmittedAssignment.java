@@ -22,6 +22,8 @@ public class SubmittedAssignment {
     private String grade;
     private String feedBack;
 
+
+
     @OneToMany(mappedBy = "submittedAssignment",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<SubmittedAssignmentFile> submittedAssignmentFiles=new ArrayList<>();
 

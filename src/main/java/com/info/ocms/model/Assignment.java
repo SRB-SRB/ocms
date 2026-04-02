@@ -36,8 +36,5 @@ public class Assignment {
     @OneToMany(mappedBy = "assignment",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<AssignmentFile> assignmentFiles=new ArrayList<>();
 
-    @OneToMany(mappedBy = "assignment",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<SubmittedAssignment> submittedAssignments=new ArrayList<>();
-
 
 }

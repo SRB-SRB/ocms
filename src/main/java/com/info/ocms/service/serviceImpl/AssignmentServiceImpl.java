@@ -1,10 +1,12 @@
 package com.info.ocms.service.serviceImpl;
 
-import com.info.ocms.dto.*;
+import com.info.ocms.dto.AssignmentRequest;
+import com.info.ocms.dto.AssignmentResponse;
+import com.info.ocms.dto.FileResponse;
+import com.info.ocms.dto.UpdateAssignmentRequest;
 import com.info.ocms.model.Assignment;
 import com.info.ocms.model.AssignmentFile;
 import com.info.ocms.model.Course;
-import com.info.ocms.model.CourseFile;
 import com.info.ocms.ropository.AssignmentFileRepo;
 import com.info.ocms.ropository.AssignmentRepo;
 import com.info.ocms.ropository.CourseRepo;
@@ -12,7 +14,6 @@ import com.info.ocms.service.AssignmentService;
 import com.info.ocms.service.DocumentMasterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.sql.init.SqlDataSourceScriptDatabaseInitializer;
-import org.springframework.expression.spel.ast.Assign;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,7 +30,6 @@ public class AssignmentServiceImpl implements AssignmentService {
     private final AssignmentRepo assignmentRepo;
     private final AssignmentFileRepo assignmentFileRepo;
     private final DocumentMasterService documentMasterService;
-    private final SqlDataSourceScriptDatabaseInitializer dataSourceScriptDatabaseInitializer;
     private final CourseRepo courseRepo;
 
     @Override
