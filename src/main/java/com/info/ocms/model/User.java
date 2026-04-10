@@ -27,8 +27,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     private GlobalRole globalRole;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<Enrollment> enrollments=new ArrayList<>();
 
 
 

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Assignments</title>
+</head>
+<body>
+
+<h2>Assignments</h2>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>CreationDate</th>
+        <th>DueDate</th>
+        <th>CourseName</th>
+
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="assignmentResponse : ${assignmentResponses}">
+        <td th:text="${assignmentResponse.title}"></td>
+        <td th:text="${assignmentResponse.description}"></td>
+        <td th:text="${assignmentResponse.creationDate}"></td>
+        <td th:text="${assignmentResponse.dueDate}"></td>
+        <td th:text="${assignmentResponse.courseName}"></td>
+
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

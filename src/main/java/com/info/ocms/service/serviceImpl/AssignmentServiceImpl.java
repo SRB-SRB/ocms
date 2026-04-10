@@ -125,6 +125,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 //        courseRepo.findById(assignment.getId()).orElseThrow(()->new RuntimeException("Course Not Found"))
        Course course= assignment.getCourse();
         assignmentResponse.setCourseName(course.getTitle());
+        assignmentResponse.setCourseId(assignment.getId());
         return assignmentResponse;
     }
     private List<AssignmentFile> saveAssignmentFiles(List<MultipartFile> files, Assignment assignment)throws IOException {

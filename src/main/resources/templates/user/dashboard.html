@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+
+<h2>User Dashboard</h2>
+
+<p><strong>Name:</strong> <span th:text="${userResponse.name}"></span></p>
+<p><strong>Contact:</strong> <span th:text="${userResponse.contact}"></span></p>
+<p><strong>Email:</strong> <span th:text="${userResponse.email}"></span></p>
+<p><strong>Role:</strong><span th:text="${userResponse.globalRole}"></span></p>
+<a th:href="@{/user/view/update/{id}(id=${userId})}"><button>update</button></a>
+
+</body>
+</html>

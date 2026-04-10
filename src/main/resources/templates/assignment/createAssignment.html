@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Course</title>
+</head>
+<body>
+<h1>Create Assignment</h1>
+<form th:action="@{/assignment/view/createAssignment}" method="POST" th:object="${assignmentRequest}" enctype="multipart/form-data">
+
+    <input type="hidden" th:field="*{courseId}"><br><br>
+
+    <label>Title:</label><br>
+    <input type="text" th:field="*{title}" required><br><br>
+
+    <label>Description:</label><br>
+    <input type="text" th:field="*{description}" required><br><br>
+
+    <label>Due Date:</label><br>
+    <input type="date" th:field="*{dueDate}" required><br><br>
+
+    <label>Files:</label><br>
+    <input type="file" th:field="*{assignmentFiles}" multiple><br><br>
+
+    <button type="submit">Submit</button>
+</form>
+
+</body>
+</html>

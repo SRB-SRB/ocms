@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assignment</title>
+</head>
+<body>
+<h2>Assignment</h2>
+
+<p><strong>Title:</strong> <span th:text="${assignmentResponse.title}"></span></p>
+<p><strong>Description:</strong> <span th:text="${assignmentResponse.description}"></span></p>
+<p><strong>Creation-Date:</strong> <span th:text="${assignmentResponse.creationDate}"></span></p>
+<p><strong>Due-Date:</strong> <span th:text="${assignmentResponse.dueDate}"></span></p>
+<p><strong>Course:</strong> <span th:text="${assignmentResponse.courseName}"></span></p>
+
+<h3>Files:</h3>
+<table border="1">
+    <thead>
+    <tr>
+        <th>File ID</th>
+        <th>Document Guide</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="file : ${assignmentResponse.assignmentFiles}">
+        <td th:text="${file.id}"></td>
+        <td th:text="${file.documentGuide}"></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<a th:href="@{/assignment/view/update/{id}(id=${assignmentId})}"><button>Update</button></a>
+<br>
+<a th:href="@{/course/view/viewCourse/{id}(id=${assignmentResponse.courseId})}"><button>back</button></a>
+
+
+</body>
+</html>

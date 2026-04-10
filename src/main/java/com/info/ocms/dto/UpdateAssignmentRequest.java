@@ -23,6 +23,7 @@ public class UpdateAssignmentRequest {
     private String description;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
+    private List<FileResponse> existingFiles;
     private List<MultipartFile> assignmentFiles;
     private List<Long> keepFilesIds=new ArrayList<>();
 }

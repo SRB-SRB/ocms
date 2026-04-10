@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assignment</title>
+</head>
+<body>
+<h2>Submitted Assignment</h2>
+
+<p><strong>ID:</strong> <span th:text="${submittedAssignmentResponse.id}"></span></p>
+<p><strong>Assignment Name:</strong> <span th:text="${submittedAssignmentResponse.assignmentName}"></span></p>
+<p><strong>Grade:</strong> <span th:text="${submittedAssignmentResponse.grade}"></span></p>
+<p><strong>Feed-Back:</strong> <span th:text="${submittedAssignmentResponse.feedBack}"></span></p>
+<p><strong>User Id:</strong> <span th:text="${submittedAssignmentResponse.userId}"></span></p>
+
+<h3>Files:</h3>
+<table border="1">
+    <thead>
+    <tr>
+        <th>File ID</th>
+        <th>Document Guide</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="file : ${submittedAssignmentResponse.submittedAssignmentFiles}">
+        <td th:text="${file.id}"></td>
+        <td th:text="${file.documentGuide}"></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<a th:href="@{/assignment/view/update/{id}(id=${submittedAssignmentId})}"><button>Update</button></a>
+<br>
+<a th:href="@{/course/view/viewCourse/{id}(id=${submittedAssignmentId})}"><button>back</button></a>
+
+
+</body>
+</html>

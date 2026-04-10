@@ -48,7 +48,7 @@ public class CourseServiceImpl implements CourseService {
     public List<CourseResponse> getAllCourses() {
         List<CourseResponse> courseResponses=new ArrayList<>();
         for(Course course:courseRepo.findAll()){
-            courseResponses.add(mapToCourseResponse(course));
+            courseResponses.add(mapToCourseResponseAll(course));
         }
         return courseResponses;
     }
@@ -125,6 +125,14 @@ public class CourseServiceImpl implements CourseService {
         courseResponse.setCourseFiles(fileResponses);
         return courseResponse;
     }
+    private CourseResponse mapToCourseResponseAll(Course course){
+        CourseResponse courseResponse=new CourseResponse();
+        courseResponse.setId(course.getId());
+        courseResponse.setTitle(course.getTitle());
+        courseResponse.setDescription(course.getDescription());
+        return courseResponse;
+    }
+
 
     private List<CourseFile> saveCourseFiles(List<MultipartFile> files, Course course)throws IOException{
         List<CourseFile> courseFiles=new ArrayList<>();

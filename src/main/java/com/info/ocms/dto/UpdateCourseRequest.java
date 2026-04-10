@@ -19,6 +19,7 @@ public class UpdateCourseRequest {
     private Long id;
     private String title;
     private String description;
+    private List<FileResponse> existingCourseFiles;
     private List<MultipartFile> courseFiles;
     private List<Long> keepFilesIds=new ArrayList<>();
 }

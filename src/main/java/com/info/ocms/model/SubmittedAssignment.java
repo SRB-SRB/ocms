@@ -21,6 +21,7 @@ public class SubmittedAssignment {
     private Long id;
     private String grade;
     private String feedBack;
+    private Long userId;
 
 
 

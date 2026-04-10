@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Course</title>
+</head>
+<body>
+<h1>Create course</h1>
+<form th:action="@{/course/view/createCourse}" method="POST" th:object="${courseRequest}" enctype="multipart/form-data">
+
+    <label>Title:</label><br>
+    <input type="text" th:field="*{title}" required><br><br>
+
+    <label>Description:</label><br>
+    <input type="text" th:field="*{description}" required><br><br>
+
+    <label>Files:</label><br>
+    <input type="file" th:field="*{courseFiles}" multiple><br><br>
+
+    <button type="submit">Submit</button>
+</form>
+
+</body>
+</html>

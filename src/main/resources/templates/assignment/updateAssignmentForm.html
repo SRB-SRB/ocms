@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update</title>
+</head>
+<body>
+<h2>Update Assignment Form</h2>
+
+<form th:action="@{/assignment/view/update/{id}(id=${assignmentId})}"
+      method="POST"
+      th:object="${updateAssignmentRequest}"
+      enctype="multipart/form-data">
+
+    <input type="hidden" name="_method" value="put" />
+    <input type="hidden" th:field="*{id}" />
+
+    <label>Title:</label><br>
+    <input type="text" th:field="*{title}" required><br><br>
+
+    <label>Description:</label><br>
+    <input type="text" th:field="*{description}" required><br><br>
+
+    <label>Due Date:</label><br>
+    <input type="date" th:field="*{dueDate}" required><br><br>
+
+
+    <label>Existing Files:</label><br>
+
+    <div th:each="file : *{existingFiles}">
+        <span th:text="${file.documentGuide}"></span>
+
+        <!-- KEEP checkbox -->
+        <input type="checkbox"
+               th:name="keepFilesIds"
+               th:value="${file.id}"
+               th:checked="true" />
+
+        <label>Keep</label>
+        <br>
+    </div>
+
+    <br>
+
+    <label>Add New Files:</label><br>
+    <input type="file" th:field="*{assignmentFiles}" multiple><br><br>
+
+    <button type="submit">Update</button>
+    <a th:href="@{/assignment/view/viewAssignment/{id}(id=${assignmentId})}">Cancel</a>
+
+</form>
+
+
+</body>
+</html>

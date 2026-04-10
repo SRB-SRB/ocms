@@ -9,10 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
-public class FileResponse {
-    private Long id;
-    private String documentGuide;
-    private String fileName;
-
+public class EnrollmentRequest {
+    private Long userId;
+    private Long courseId;
+    private String roleInCourse;
 }

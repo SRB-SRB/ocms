@@ -3,6 +3,8 @@ package com.info.ocms.controller;
 import com.info.ocms.dto.InstructorSubmittedAssignmentRequest;
 import com.info.ocms.dto.StudentSubmittedAssignmentRequest;
 import com.info.ocms.dto.SubmittedAssignmentResponse;
+import com.info.ocms.dto.UpdateStudentSubmittedAssignmentRequest;
+import com.info.ocms.model.SubmittedAssignment;
 import com.info.ocms.service.SubmittedAssignmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -24,6 +26,14 @@ public class SubmittedAssignmentController {
     public SubmittedAssignmentResponse gradeAssignment(@RequestBody InstructorSubmittedAssignmentRequest instructorSubmittedAssignmentRequest){
         return submittedAssignmentService.gradeAssignment(instructorSubmittedAssignmentRequest);
     }
+    @GetMapping("/{id}")
+    public SubmittedAssignmentResponse getSubmittedAssignmentById(@PathVariable Long id){
+        return submittedAssignmentService.getSubmittedAssignmentById(id);
+    }
 
 
+   @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public SubmittedAssignmentResponse updateSubmittedAssignment(@ModelAttribute UpdateStudentSubmittedAssignmentRequest updateStudentSubmittedAssignmentRequest) throws IOException{
+        return submittedAssignmentService.updateSubmittedAssignment(updateStudentSubmittedAssignmentRequest);
+   }
 }

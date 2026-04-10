@@ -13,10 +13,9 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class StudentSubmittedAssignmentRequest {
+public class UpdateStudentSubmittedAssignmentRequest {
 
-
+    private Long id;
     private List<MultipartFile> submittedAssignmentFiles=new ArrayList<>();
-    private Long assignmentId;
-    private Long userId;
+    private List<Long> keepFilesIds=new ArrayList<>();
 }

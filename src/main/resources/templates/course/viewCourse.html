@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Course</title>
+</head>
+<body>
+<h2>Course</h2>
+
+<p><strong>Title:</strong> <span th:text="${courseResponse.title}"></span></p>
+<p><strong>Description:</strong> <span th:text="${courseResponse.description}"></span></p>
+
+<h3>Files:</h3>
+<table border="1">
+    <thead>
+    <tr>
+        <th>File ID</th>
+        <th>Document Guide</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="file : ${courseResponse.courseFiles}">
+        <td th:text="${file.id}"></td>
+        <td th:text="${file.documentGuide}"></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<a th:href="@{/course/view/update/{id}(id=${courseId})}"><button>Update</button></a>
+<br>
+<a th:href="@{/assignment/view/createAssignment/{id}(id=${courseId})}"><button>Create Assignment</button></a>
+
+</body>
+</html>

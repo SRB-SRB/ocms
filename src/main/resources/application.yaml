@@ -22,6 +22,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
 app:
     upload:
       dir: /var/myapp/uploads

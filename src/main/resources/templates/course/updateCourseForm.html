@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Course</title>
+</head>
+<body>
+<h2>Update Course Form</h2>
+
+<form th:action="@{/course/view/update/{id}(id=${courseId})}"
+      method="POST"
+      th:object="${updateCourseRequest}"
+      enctype="multipart/form-data">
+
+    <input type="hidden" name="_method" value="put" />
+    <input type="hidden" th:field="*{id}" />
+
+    <label>Title:</label><br>
+    <input type="text" th:field="*{title}" required><br><br>
+
+    <label>Description:</label><br>
+    <input type="text" th:field="*{description}" required><br><br>
+
+
+    <label>Existing Files:</label><br>
+
+    <div th:each="file : *{existingCourseFiles}">
+        <span th:text="${file.documentGuide}"></span>
+
+        <!-- KEEP checkbox -->
+        <input type="checkbox"
+               th:name="keepFilesIds"
+               th:value="${file.id}"
+               th:checked="true" />
+
+        <label>Keep</label>
+        <br>
+    </div>
+
+    <br>
+
+    <label>Add New Files:</label><br>
+    <input type="file" th:field="*{courseFiles}" multiple><br><br>
+
+    <button type="submit">Update</button>
+    <a th:href="@{/course/view/viewCourse/{id}(id=${courseId})}">Cancel</a>
+
+</form>
+
+</body>
+</html>

@@ -24,8 +24,6 @@ public class Course {
 
 
 
-    @OneToMany(mappedBy ="course",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<Enrollment> enrollments=new ArrayList<>();
 
     @OneToMany(mappedBy = "course",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<CourseFile> courseFiles=new ArrayList<>();
