@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Enroll — OCMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        :root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #242424; --border: #2e2e2e; --accent: #e8ff47; --text: #f0f0f0; --text-muted: #888; --danger: #ff4747; --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .confirm-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 3rem; max-width: 480px; width: 90%; text-align: center; }
+        .confirm-icon { font-size: 3rem; margin-bottom: 1.5rem; }
+        h1 { font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .course-name { color: var(--accent); font-weight: 600; }
+        p { color: var(--text-muted); margin: 1rem 0 2rem; line-height: 1.6; }
+        .actions { display: flex; gap: 1rem; justify-content: center; }
+        .btn { display: inline-flex; align-items: center; padding: 0.75rem 1.5rem; border-radius: 8px; font-family: var(--font-body); font-size: 0.95rem; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: all 0.2s; }
+        .btn-primary { background: var(--accent); color: #0f0f0f; }
+        .btn-primary:hover { background: #d4eb30; }
+        .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { border-color: var(--text-muted); }
+    </style>
+</head>
+<body>
+<div class="confirm-box">
+    <div class="confirm-icon">🎓</div>
+    <h1>Enroll in Course</h1>
+    <p>You're about to enroll in <span class="course-name" th:text="${courseName}">Course Name</span>. Are you sure?</p>
+    <div class="actions">
+        <a th:href="@{/course/view/viewCourse/{id}(id=${courseId})}" class="btn btn-secondary">Cancel</a>
+        <form th:action="@{/enrollment/view/enroll}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="courseId" th:value="${courseId}"/>
+            <button type="submit" class="btn btn-primary">Confirm Enroll</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

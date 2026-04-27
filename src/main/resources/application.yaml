@@ -29,3 +29,4 @@ spring:
 app:
     upload:
       dir: /var/myapp/uploads
+      max-size-bytes: 2097152

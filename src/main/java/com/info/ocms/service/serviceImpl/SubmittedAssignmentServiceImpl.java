@@ -1,16 +1,14 @@
 package com.info.ocms.service.serviceImpl;
 
+import com.info.ocms.constants.RoleInCourse;
 import com.info.ocms.dto.*;
-import com.info.ocms.model.Assignment;
-import com.info.ocms.model.AssignmentFile;
-import com.info.ocms.model.SubmittedAssignment;
-import com.info.ocms.model.SubmittedAssignmentFile;
-import com.info.ocms.ropository.AssignmentRepo;
-import com.info.ocms.ropository.SubmittedAssignmentFileRepo;
-import com.info.ocms.ropository.SubmittedAssignmentRepo;
+import com.info.ocms.model.*;
+import com.info.ocms.ropository.*;
 import com.info.ocms.service.DocumentMasterService;
 import com.info.ocms.service.SubmittedAssignmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,21 +26,51 @@ public class SubmittedAssignmentServiceImpl implements SubmittedAssignmentServic
     private final SubmittedAssignmentFileRepo submittedAssignmentFileRepo;
     private final DocumentMasterService documentMasterService;
     private final SubmittedAssignmentRepo submittedAssignmentRepo;
+    private final UserRepo userRepo;
+    private final EnrollmentRepo enrollmentRepo;
+
+    private User getCurrentUser(){
+        String email= SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+        return userRepo.findByEmail(email).orElseThrow(()-> new RuntimeException("Authenticated User Not Found"));
+    }
 
     @Override
+    @Transactional
     public SubmittedAssignmentResponse submitAssignment(StudentSubmittedAssignmentRequest studentSubmittedAssignmentRequest) throws IOException {
+        User currentUser=getCurrentUser();
+        Assignment assignment=assignmentRepo.findById(studentSubmittedAssignmentRequest.getAssignmentId()).orElseThrow(()-> new RuntimeException("Assignment Not Found"));
+        Enrollment enrollment=enrollmentRepo.findByUserAndCourse(currentUser,assignment.getCourse())
+                .orElseThrow(()->new AccessDeniedException("You are not enrolled in this course"));
+        if(enrollment.getRoleInCourse()== RoleInCourse.INSTRUCTOR){
+            throw new AccessDeniedException("Instructor cannot Submit Assignment");
+        }
+
+        if(submittedAssignmentRepo.findByUserIdAndAssignment(currentUser.getId(),assignment).isPresent()){
+            throw new RuntimeException("You have already submitted this assignment");
+        }
+
         SubmittedAssignment submittedAssignment=new SubmittedAssignment();
-        submittedAssignment.setUserId(studentSubmittedAssignmentRequest.getUserId());
-        submittedAssignment.setAssignment(assignmentRepo.findById(studentSubmittedAssignmentRequest.getAssignmentId()).orElseThrow(()->new RuntimeException("Assignment Not Found")));
+        submittedAssignment.setUserId(currentUser.getId());
+        submittedAssignment.setAssignment(assignment);
         SubmittedAssignment savedSubmittedAssignment=submittedAssignmentRepo.save(submittedAssignment);
-        if (studentSubmittedAssignmentRequest.getSubmittedAssignmentFiles()!=null && !studentSubmittedAssignmentRequest.getSubmittedAssignmentFiles().isEmpty())
-        submittedAssignment.setSubmittedAssignmentFiles(saveSubmittedAssignmentFiles(studentSubmittedAssignmentRequest.getSubmittedAssignmentFiles(),savedSubmittedAssignment));
+        if (studentSubmittedAssignmentRequest.getSubmittedAssignmentFiles()!=null && !studentSubmittedAssignmentRequest.getSubmittedAssignmentFiles().isEmpty()){
+            savedSubmittedAssignment.setSubmittedAssignmentFiles(saveSubmittedAssignmentFiles(studentSubmittedAssignmentRequest.getSubmittedAssignmentFiles(),savedSubmittedAssignment));
+        }
+
         return mapToSubmittedAssignmentResponse(savedSubmittedAssignment);
     }
 
     @Override
     public SubmittedAssignmentResponse gradeAssignment(InstructorSubmittedAssignmentRequest instructorSubmittedAssignmentRequest) {
+        User currentUser=getCurrentUser();
         SubmittedAssignment submittedAssignment=submittedAssignmentRepo.findById(instructorSubmittedAssignmentRequest.getId()).orElseThrow(()->new RuntimeException("Submitted Assignment Not Found"));
+
+        Enrollment enrollment=enrollmentRepo.findByUserAndCourse(currentUser,submittedAssignment.getAssignment().getCourse()).orElseThrow(()->new AccessDeniedException("You are not enrolled in this course"));
+        if(enrollment.getRoleInCourse()!=RoleInCourse.INSTRUCTOR){
+            throw  new AccessDeniedException("Only Course Instructor can grade Assignments");
+        }
         submittedAssignment.setGrade(instructorSubmittedAssignmentRequest.getGrade());
         submittedAssignment.setFeedBack(instructorSubmittedAssignmentRequest.getFeedBack());
 
@@ -54,10 +83,29 @@ public class SubmittedAssignmentServiceImpl implements SubmittedAssignmentServic
     }
 
     @Override
+    public List<SubmittedAssignmentResponse> getSubmissionsByAssignment(Long assignmentId) {
+        Assignment assignment=assignmentRepo.findById(assignmentId).orElseThrow(()->new RuntimeException("Assignment Not Found"));
+        User currentUser=getCurrentUser();
+        Enrollment enrollment=enrollmentRepo.findByUserAndCourse(currentUser,assignment.getCourse()).orElseThrow(()->new AccessDeniedException("you are not enrolled in this course"));
+        if(enrollment.getRoleInCourse()!=RoleInCourse.INSTRUCTOR){
+            throw new AccessDeniedException("Only Course Instructor can View All Submissions");
+        }
+        List<SubmittedAssignmentResponse> responses=new ArrayList<>();
+        for(SubmittedAssignment submission :submittedAssignmentRepo.findByAssignment(assignment)){
+            responses.add(mapToSubmittedAssignmentResponse(submission));
+        }
+        return responses;
+    }
+
+    @Override
     @Transactional
     public SubmittedAssignmentResponse updateSubmittedAssignment(UpdateStudentSubmittedAssignmentRequest updateStudentSubmittedAssignmentRequest) throws  IOException {
+        User currentUser=getCurrentUser();
         SubmittedAssignment existingSubmittedAssignment=submittedAssignmentRepo.findById(updateStudentSubmittedAssignmentRequest.getId()).orElseThrow(()->new RuntimeException("Submitted Assignment Not Found"));
-        if(existingSubmittedAssignment.getGrade()!=null || existingSubmittedAssignment.getFeedBack()!=null){throw new RuntimeException("Your Submitted Assignment Is Already Graded : UPDATE NOT ALLOWED");}
+        if(!existingSubmittedAssignment.getUserId().equals(currentUser.getId())){
+            throw new AccessDeniedException("You can update your own submission");
+        }
+        if(existingSubmittedAssignment.getGrade()!=null){throw new RuntimeException("Your Submitted Assignment Is Already Graded : UPDATE NOT ALLOWED");}
         var existingFiles=existingSubmittedAssignment.getSubmittedAssignmentFiles();
         for(var existingFile:existingFiles) {
             if (!updateStudentSubmittedAssignmentRequest.getKeepFilesIds().contains(existingFile.getId())) {
@@ -80,6 +128,14 @@ public class SubmittedAssignmentServiceImpl implements SubmittedAssignmentServic
         return mapToSubmittedAssignmentResponse(updated);
     }
 
+    @Override
+    public List<SubmittedAssignmentResponse> getMySubmissions() {
+        User currentUser=getCurrentUser();
+        return submittedAssignmentRepo.findByUserId(currentUser.getId()).stream()
+                .map(this::mapToSubmittedAssignmentResponse)
+                .collect(Collectors.toList());
+    }
+
     private List<SubmittedAssignmentFile> saveSubmittedAssignmentFiles(List<MultipartFile> files, SubmittedAssignment submittedAssignment)throws IOException {
         List<SubmittedAssignmentFile> submittedAssignmentFiles=new ArrayList<>();
         for(MultipartFile file: files){
@@ -94,9 +150,12 @@ public class SubmittedAssignmentServiceImpl implements SubmittedAssignmentServic
 
     }
     private SubmittedAssignmentResponse mapToSubmittedAssignmentResponse(SubmittedAssignment submittedAssignment){
+        User user=userRepo.findById(submittedAssignment.getUserId()).orElseThrow(()->new RuntimeException("User Not Found"));
         SubmittedAssignmentResponse submittedAssignmentResponse=new SubmittedAssignmentResponse();
         submittedAssignmentResponse.setId(submittedAssignment.getId());
-        submittedAssignmentResponse.setUserId(submittedAssignmentResponse.getUserId());
+        submittedAssignmentResponse.setUserName(user.getName());
+        submittedAssignmentResponse.setUserId(submittedAssignment.getUserId());
+        submittedAssignmentResponse.setAssignmentId(submittedAssignment.getAssignment().getId());
         submittedAssignmentResponse.setAssignmentName(submittedAssignment.getAssignment().getTitle());
         submittedAssignmentResponse.setGrade(submittedAssignment.getGrade());
         submittedAssignmentResponse.setFeedBack(submittedAssignment.getFeedBack());

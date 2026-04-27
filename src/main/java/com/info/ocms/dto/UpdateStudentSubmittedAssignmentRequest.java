@@ -17,5 +17,6 @@ public class UpdateStudentSubmittedAssignmentRequest {
 
     private Long id;
     private List<MultipartFile> submittedAssignmentFiles=new ArrayList<>();
+    private List<FileResponse> existingFiles;
     private List<Long> keepFilesIds=new ArrayList<>();
 }

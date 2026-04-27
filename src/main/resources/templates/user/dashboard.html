@@ -1,18 +1,202 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard — OCMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #242424;
+            --border: #2e2e2e; --accent: #e8ff47; --accent2: #47c8ff;
+            --text: #f0f0f0; --text-muted: #888; --danger: #ff4747; --success: #47ff8f;
+            --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-body); }
+        nav {
+            background: var(--surface); border-bottom: 1px solid var(--border);
+            padding: 0 2rem; display: flex; align-items: center;
+            justify-content: space-between; height: 64px;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-brand { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--accent); text-decoration: none; }
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; list-style: none; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; padding: 0.4rem 0.8rem; border-radius: 8px; transition: all 0.2s; }
+        .nav-links a:hover { color: var(--text); background: var(--surface2); }
+        .nav-logout { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 8px; cursor: pointer; font-family: var(--font-body); font-size: 0.9rem; transition: all 0.2s; }
+        .nav-logout:hover { border-color: var(--danger); color: var(--danger); }
+        main { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
+        .welcome {
+            background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+            border: 1px solid var(--border); border-radius: 16px;
+            padding: 2.5rem; margin-bottom: 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+            position: relative; overflow: hidden;
+        }
+        .welcome::before {
+            content: ''; position: absolute; top: -60px; right: -60px;
+            width: 200px; height: 200px; border-radius: 50%;
+            background: var(--accent); opacity: 0.05;
+        }
+        .welcome-text h1 { font-family: var(--font-display); font-size: 2rem; font-weight: 800; }
+        .welcome-text h1 span { color: var(--accent); }
+        .welcome-text p { color: var(--text-muted); margin-top: 0.4rem; }
+        .welcome-actions { display: flex; gap: 0.8rem; }
+        .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.2rem; border-radius: 8px; font-family: var(--font-body); font-size: 0.9rem; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: all 0.2s; }
+        .btn-primary { background: var(--accent); color: #0f0f0f; }
+        .btn-primary:hover { background: #d4eb30; }
+        .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { border-color: var(--text-muted); }
+        .section-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+        .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+        .info-card-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+        .info-card-value { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; }
+        .badge { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge-instructor { background: #e8ff4720; color: var(--accent); border: 1px solid #e8ff4740; }
+        .badge-student { background: #47c8ff20; color: var(--accent2); border: 1px solid #47c8ff40; }
+        .badge-admin { background: #ff474720; color: var(--danger); border: 1px solid #ff474740; }
+        .quick-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+        .quick-link { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-decoration: none; color: var(--text); transition: all 0.2s; text-align: center; }
+        .quick-link:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .quick-link-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .quick-link-label { font-size: 0.85rem; font-weight: 500; }
+        .submission-list { display: flex; flex-direction: column; gap: 0.8rem; }
+        .submission-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; text-decoration: none; color: var(--text); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+        .submission-card:hover { border-color: var(--accent2); transform: translateY(-1px); }
+        .submission-name { font-weight: 600; font-size: 0.95rem; }
+        .submission-status { font-size: 0.85rem; margin-top: 0.2rem; }
+        .submission-arrow { color: var(--accent); font-size: 0.85rem; flex-shrink: 0; }
+        @media (max-width: 768px) {
+            .info-grid, .quick-links { grid-template-columns: repeat(2, 1fr); }
+            .welcome { flex-direction: column; gap: 1rem; align-items: flex-start; }
+        }
+    </style>
 </head>
 <body>
+<nav>
+    <a class="nav-brand" href="/course/view/courses">OCMS</a>
+    <ul class="nav-links">
+        <li><a href="/course/view/courses">Courses</a></li>
+        <li sec:authorize="hasRole('INSTRUCTOR')"><a href="/course/view/createCourse">+ New Course</a></li>
+        <li sec:authorize="hasRole('ADMIN')"><a href="/admin/view/users">Admin</a></li>
+        <li><a href="/user/view/dashboard" style="color:var(--text);background:var(--surface2)">Dashboard</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button class="nav-logout" type="submit">Logout</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+<main>
+    <div class="welcome">
+        <div class="welcome-text">
+            <h1>Hello, <span th:text="${userResponse.name}">User</span> 👋</h1>
+            <p>Welcome back to your learning dashboard</p>
+        </div>
+        <div class="welcome-actions">
+            <a href="/user/view/update" class="btn btn-secondary">Edit Profile</a>
+            <a href="/course/view/courses" class="btn btn-primary">Browse Courses</a>
+        </div>
+    </div>
 
-<h2>User Dashboard</h2>
+    <div class="info-grid">
+        <div class="info-card">
+            <div class="info-card-label">Full Name</div>
+            <div class="info-card-value" th:text="${userResponse.name}">Name</div>
+        </div>
+        <div class="info-card">
+            <div class="info-card-label">Email</div>
+            <div class="info-card-value" style="font-size:0.95rem" th:text="${userResponse.email}">email</div>
+        </div>
+        <div class="info-card">
+            <div class="info-card-label">Role</div>
+            <div class="info-card-value">
+                <span class="badge badge-instructor" th:if="${userResponse.globalRole == 'INSTRUCTOR'}" th:text="${userResponse.globalRole}"></span>
+                <span class="badge badge-student" th:if="${userResponse.globalRole == 'STUDENT'}" th:text="${userResponse.globalRole}"></span>
+                <span class="badge badge-admin" th:if="${userResponse.globalRole == 'ADMIN'}" th:text="${userResponse.globalRole}"></span>
+            </div>
+        </div>
+    </div>
 
-<p><strong>Name:</strong> <span th:text="${userResponse.name}"></span></p>
-<p><strong>Contact:</strong> <span th:text="${userResponse.contact}"></span></p>
-<p><strong>Email:</strong> <span th:text="${userResponse.email}"></span></p>
-<p><strong>Role:</strong><span th:text="${userResponse.globalRole}"></span></p>
-<a th:href="@{/user/view/update/{id}(id=${userId})}"><button>update</button></a>
+<!--    <div class="section-title">Quick Actions</div>-->
+<!--    <div class="quick-links">-->
+<!--        <a href="/course/view/courses" class="quick-link">-->
+<!--            <div class="quick-link-icon">📚</div>-->
+<!--            <div class="quick-link-label">All Courses</div>-->
+<!--        </a>-->
+<!--        <a href="/course/view/createCourse" class="quick-link" sec:authorize="hasRole('INSTRUCTOR')">-->
+<!--            <div class="quick-link-icon">➕</div>-->
+<!--            <div class="quick-link-label">New Course</div>-->
+<!--        </a>-->
+<!--        <a href="/admin/view/users" class="quick-link" sec:authorize="hasRole('ADMIN')">-->
+<!--            <div class="quick-link-icon">👥</div>-->
+<!--            <div class="quick-link-label">Manage Users</div>-->
+<!--        </a>-->
+<!--        <a href="/user/view/update" class="quick-link">-->
+<!--            <div class="quick-link-icon">⚙️</div>-->
+<!--            <div class="quick-link-label">Edit Profile</div>-->
+<!--        </a>-->
+<!--    </div>-->
 
+    <div style="margin-top:2rem" th:if="${!#lists.isEmpty(myCoursesAsStudent)}">
+        <div class="section-title">My Enrolled Courses</div>
+        <div class="quick-links">
+            <a th:each="enrollment : ${myCoursesAsStudent}"
+               th:href="@{/course/view/viewCourse/{id}(id=${enrollment.courseId})}"
+               class="quick-link">
+                <div class="quick-link-icon">📚</div>
+                <div class="quick-link-label" th:text="${enrollment.courseTitle}">Course</div>
+            </a>
+        </div>
+    </div>
+
+    <div style="margin-top:2rem" th:if="${!#lists.isEmpty(myCoursesAsInstructor)}">
+        <div class="section-title">Courses I'm Teaching</div>
+        <div class="quick-links">
+            <a th:each="enrollment : ${myCoursesAsInstructor}"
+               th:href="@{/course/view/viewCourse/{id}(id=${enrollment.courseId})}"
+               class="quick-link">
+                <div class="quick-link-icon">🎓</div>
+                <div class="quick-link-label" th:text="${enrollment.courseTitle}">Course</div>
+            </a>
+        </div>
+    </div>
+
+    <div style="margin-top:2rem" th:if="${!#lists.isEmpty(pendingSubmissions)}">
+        <div class="section-title">⏳ Un-Graded Submissions</div>
+        <div class="submission-list">
+            <a th:each="submission : ${pendingSubmissions}"
+               th:href="@{/submittedAssignment/view/viewSubmittedAssignment/{id}(id=${submission.id})}"
+               class="submission-card">
+                <div>
+                    <div class="submission-name" th:text="${submission.assignmentName}">Assignment</div>
+                    <div class="submission-status" style="color:var(--text-muted)">Waiting for grade</div>
+                </div>
+                <span class="submission-arrow">View →</span>
+            </a>
+        </div>
+    </div>
+
+    <div style="margin-top:2rem" th:if="${!#lists.isEmpty(gradedSubmissions)}">
+        <div class="section-title">✅ Graded Submissions</div>
+        <div class="submission-list">
+            <a th:each="submission : ${gradedSubmissions}"
+               th:href="@{/submittedAssignment/view/viewSubmittedAssignment/{id}(id=${submission.id})}"
+               class="submission-card">
+                <div>
+                    <div class="submission-name" th:text="${submission.assignmentName}">Assignment</div>
+                    <div class="submission-status" style="color:var(--success)"
+                         th:text="'Grade: ' + ${submission.grade}">Grade</div>
+                </div>
+                <span class="submission-arrow">View →</span>
+            </a>
+        </div>
+    </div>
+
+</main>
 </body>
 </html>

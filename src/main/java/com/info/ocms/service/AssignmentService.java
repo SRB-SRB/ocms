@@ -11,7 +11,7 @@ import java.util.List;
 public interface AssignmentService {
     AssignmentResponse createAssignment(AssignmentRequest assignmentRequest) throws IOException;
     AssignmentResponse getAssignmentById(Long id);
-    List<AssignmentResponse> getAllAssignments();
+    List<AssignmentResponse> getAssignmentsByCourse(Long courseId);
     AssignmentResponse updateAssignment(UpdateAssignmentRequest updateAssignmentRequest) throws IOException;
     void deleteAssignmentById(Long id);
 

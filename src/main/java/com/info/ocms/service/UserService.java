@@ -14,6 +14,8 @@ public interface UserService {
     List<UserResponse> getAll();
     UserResponse updateUser(UserRequest userRequest);
     void deleteById(Long id);
+    UserResponse promoteToInstructor(Long userId);
+    UserResponse demoteToStudent(Long userId);
 
 
 

@@ -28,7 +28,7 @@ public class AssignmentController {
     }
     @GetMapping
     public List<AssignmentResponse> getAllAssignment(){
-        return assignmentService.getAllAssignments();
+        return null;
     }
 
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

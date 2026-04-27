@@ -17,6 +17,7 @@ public class Enrollment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private boolean isOwner;
     @Enumerated(EnumType.STRING)
     private RoleInCourse roleInCourse;
 

@@ -15,7 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 public class StudentSubmittedAssignmentRequest {
 
-
     private List<MultipartFile> submittedAssignmentFiles=new ArrayList<>();
     private Long assignmentId;
     private Long userId;

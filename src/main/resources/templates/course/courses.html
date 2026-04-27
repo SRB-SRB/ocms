@@ -1,28 +1,96 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
 <head>
-  <meta charset="UTF-8">
-  <title>Courses</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Courses — OCMS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #242424; --border: #2e2e2e; --accent: #e8ff47; --accent2: #47c8ff; --text: #f0f0f0; --text-muted: #888; --danger: #ff4747; --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-body); }
+    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; }
+    .nav-brand { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--accent); text-decoration: none; }
+    .nav-links { display: flex; align-items: center; gap: 0.5rem; list-style: none; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; padding: 0.4rem 0.8rem; border-radius: 8px; transition: all 0.2s; }
+    .nav-links a:hover, .nav-links .active { color: var(--text); background: var(--surface2); }
+    .nav-logout { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 8px; cursor: pointer; font-family: var(--font-body); font-size: 0.9rem; transition: all 0.2s; }
+    .nav-logout:hover { border-color: var(--danger); color: var(--danger); }
+    main { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+    .page-header h1 { font-family: var(--font-display); font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+    .page-header p { color: var(--text-muted); margin-top: 0.4rem; }
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.2rem; border-radius: 8px; font-family: var(--font-body); font-size: 0.9rem; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: all 0.2s; }
+    .btn-primary { background: var(--accent); color: #0f0f0f; }
+    .btn-primary:hover { background: #d4eb30; }
+    .courses-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+    .course-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem;
+      text-decoration: none; color: var(--text);
+      transition: all 0.2s; display: flex; flex-direction: column; gap: 0.8rem;
+    }
+    .course-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .course-card-num {
+      font-family: var(--font-display); font-size: 2rem; font-weight: 800;
+      color: #ffffff08; line-height: 1;
+    }
+    .course-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; }
+    .course-desc { color: var(--text-muted); font-size: 0.875rem; line-height: 1.6; flex: 1; }
+    .course-footer { display: flex; justify-content: flex-end; }
+    .course-link { font-size: 0.85rem; color: var(--accent); font-weight: 500; }
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
+    .empty-state-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .empty-state h3 { font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text); }
+    @media (max-width: 768px) { .courses-grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
+<nav>
+  <a class="nav-brand" href="/course/view/courses">OCMS</a>
+  <ul class="nav-links">
+    <li><a href="/course/view/courses" class="active">Courses</a></li>
+    <li sec:authorize="hasRole('INSTRUCTOR')"><a href="/course/view/createCourse">+ New Course</a></li>
+    <li sec:authorize="hasRole('ADMIN')"><a href="/admin/view/users">Admin</a></li>
+    <li><a href="/user/view/dashboard">Dashboard</a></li>
+    <li>
+      <form th:action="@{/logout}" method="post" style="display:inline">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button class="nav-logout" type="submit">Logout</button>
+      </form>
+    </li>
+  </ul>
+</nav>
+<main>
+  <div class="page-header">
+    <div>
+      <h1>Courses</h1>
+      <p>Browse and enroll in available courses</p>
+    </div>
+    <a href="/course/view/createCourse" class="btn btn-primary" sec:authorize="hasRole('INSTRUCTOR')">+ New Course</a>
+  </div>
 
-<h2>Courses</h2>
+  <!-- Empty state -->
+  <div class="empty-state" th:if="${#lists.isEmpty(courseResponses)}">
+    <div class="empty-state-icon">📚</div>
+    <h3>No courses yet</h3>
+    <p>Be the first to create a course!</p>
+  </div>
 
-<table border="1">
-  <thead>
-  <tr>
-    <th>Title</th>
-    <th>Description</th>
-  </tr>
-  </thead>
-
-  <tbody>
-  <tr th:each="courseResponse : ${CourseResponses}">
-    <td th:text="${courseResponse.title}"></td>
-    <td th:text="${courseResponse.description}"></td>
-  </tr>
-  </tbody>
-</table>
-
+  <!-- Courses grid -->
+  <div class="courses-grid" th:if="${!#lists.isEmpty(courseResponses)}">
+    <a th:each="course, iter : ${courseResponses}"
+       th:href="@{/course/view/viewCourse/{id}(id=${course.id})}"
+       class="course-card">
+      <div class="course-card-num" th:text="${iter.count}">01</div>
+      <div class="course-title" th:text="${course.title}">Course Title</div>
+      <div class="course-desc" th:text="${course.description}">Description</div>
+      <div class="course-footer">
+        <span class="course-link">View Course →</span>
+      </div>
+    </a>
+  </div>
+</main>
 </body>
 </html>

@@ -12,6 +12,9 @@ import lombok.Setter;
 public class EnrollmentResponse {
     private Long id;
     private Long userId;
+    private String userName;
+    private String userEmail;
     private Long courseId;
+    private String courseTitle;
     private String roleInCourse;
 }

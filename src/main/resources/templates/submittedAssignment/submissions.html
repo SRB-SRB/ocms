@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Submissions — OCMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        :root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #242424; --border: #2e2e2e; --accent: #e8ff47; --accent2: #47c8ff; --text: #f0f0f0; --text-muted: #888; --danger: #ff4747; --success: #47ff8f; --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-body); }
+        nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; }
+        .nav-brand { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--accent); text-decoration: none; }
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; list-style: none; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; padding: 0.4rem 0.8rem; border-radius: 8px; transition: all 0.2s; }
+        .nav-links a:hover { color: var(--text); background: var(--surface2); }
+        .nav-logout { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 8px; cursor: pointer; font-family: var(--font-body); font-size: 0.9rem; transition: all 0.2s; }
+        .nav-logout:hover { border-color: var(--danger); color: var(--danger); }
+        main { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem; }
+        .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+        .page-header h1 { font-family: var(--font-display); font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); padding: 0.75rem 1.2rem; border-bottom: 1px solid var(--border); background: var(--surface2); }
+        td { padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--surface2); }
+        .badge-graded { display:inline-block; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #47ff8f20; color: var(--success); border: 1px solid #47ff8f40; }
+        .badge-pending { display:inline-block; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #88888820; color: var(--text-muted); border: 1px solid #88888840; }
+        .btn { display: inline-flex; align-items: center; padding: 0.35rem 0.8rem; border-radius: 6px; font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: all 0.2s; }
+        .btn-primary { background: var(--accent); color: #0f0f0f; }
+        .btn-primary:hover { background: #d4eb30; }
+        .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+        .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+<nav>
+    <a class="nav-brand" href="/course/view/courses">OCMS</a>
+    <ul class="nav-links">
+        <li><a href="/course/view/courses">Courses</a></li>
+        <li><a href="/user/view/dashboard">Dashboard</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button class="nav-logout" type="submit">Logout</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+<main>
+    <div class="page-header">
+        <div>
+            <h1>Submissions</h1>
+            <p>All student submissions for this assignment</p>
+        </div>
+        <a th:href="@{/assignment/view/viewAssignment/{id}(id=${assignmentId})}" class="btn btn-secondary" style="padding:0.6rem 1.2rem;font-size:0.9rem">← Back</a>
+    </div>
+    <div class="card">
+        <div class="empty-state" th:if="${#lists.isEmpty(submissions)}">No submissions yet</div>
+        <table th:if="${!#lists.isEmpty(submissions)}">
+            <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Assignment</th>
+                <th>Status</th>
+                <th>Grade</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="submission : ${submissions}">
+                <td th:text="${submission.userName}">Name</td>
+                <td th:text="${submission.assignmentName}">Name</td>
+                <td>
+                    <span class="badge-graded" th:if="${submission.grade != null}">Graded</span>
+                    <span class="badge-pending" th:if="${submission.grade == null}">Pending</span>
+                </td>
+                <td th:text="${submission.grade ?: '—'}">—</td>
+                <td>
+                    <a th:href="@{/submittedAssignment/view/viewSubmittedAssignment/{id}(id=${submission.id})}"
+                       class="btn btn-secondary">View</a>
+                    <a th:href="@{/submittedAssignment/view/gradeSubmittedAssignment/{id}(id=${submission.id})}"
+                       class="btn btn-primary" th:if="${submission.grade == null}">Grade</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

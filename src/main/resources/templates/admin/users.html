@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Users — Admin — OCMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        :root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #242424; --border: #2e2e2e; --accent: #e8ff47; --accent2: #47c8ff; --text: #f0f0f0; --text-muted: #888; --danger: #ff4747; --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-body); }
+        nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; }
+        .nav-brand { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--accent); text-decoration: none; }
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; list-style: none; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; padding: 0.4rem 0.8rem; border-radius: 8px; transition: all 0.2s; }
+        .nav-links a:hover { color: var(--text); background: var(--surface2); }
+        .nav-logout { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 8px; cursor: pointer; font-family: var(--font-body); font-size: 0.9rem; transition: all 0.2s; }
+        .nav-logout:hover { border-color: var(--danger); color: var(--danger); }
+        main { max-width: 1000px; margin: 0 auto; padding: 2.5rem 2rem; }
+        .page-header { margin-bottom: 2rem; }
+        .page-header h1 { font-family: var(--font-display); font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+        .page-header p { color: var(--text-muted); margin-top: 0.4rem; }
+        .admin-tag { display: inline-block; background: #ff474720; color: var(--danger); border: 1px solid #ff474740; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.8rem; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); padding: 0.75rem 1.2rem; border-bottom: 1px solid var(--border); background: var(--surface2); }
+        td { padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--surface2); }
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge-instructor { background: #e8ff4720; color: var(--accent); border: 1px solid #e8ff4740; }
+        .badge-student { background: #47c8ff20; color: var(--accent2); border: 1px solid #47c8ff40; }
+        .badge-admin { background: #ff474720; color: var(--danger); border: 1px solid #ff474740; }
+        .btn { display: inline-flex; align-items: center; padding: 0.35rem 0.8rem; border-radius: 6px; font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: all 0.2s; }
+        .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { border-color: var(--text-muted); }
+        .actions-cell { display: flex; gap: 0.4rem; }
+    </style>
+</head>
+<body>
+<nav>
+    <a class="nav-brand" href="/course/view/courses">OCMS</a>
+    <ul class="nav-links">
+        <li><a href="/course/view/courses">Courses</a></li>
+        <li><a href="/admin/view/users" style="color:var(--text);background:var(--surface2)">Admin</a></li>
+        <li><a href="/user/view/dashboard">Dashboard</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button class="nav-logout" type="submit">Logout</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+<main>
+    <div class="page-header">
+        <div class="admin-tag">ADMIN PANEL</div>
+        <h1>All Users</h1>
+        <p>Manage user roles and accounts</p>
+    </div>
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Contact</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}">1</td>
+                <td th:text="${user.name}">Name</td>
+                <td th:text="${user.email}">email</td>
+                <td th:text="${user.contact}">contact</td>
+                <td>
+                    <span class="badge badge-instructor" th:if="${user.globalRole == 'INSTRUCTOR'}" th:text="${user.globalRole}"></span>
+                    <span class="badge badge-student" th:if="${user.globalRole == 'STUDENT'}" th:text="${user.globalRole}"></span>
+                    <span class="badge badge-admin" th:if="${user.globalRole == 'ADMIN'}" th:text="${user.globalRole}"></span>
+                </td>
+                <td>
+                    <div class="actions-cell">
+                        <a th:href="@{/admin/view/users/{id}(id=${user.id})}" class="btn btn-secondary">View</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

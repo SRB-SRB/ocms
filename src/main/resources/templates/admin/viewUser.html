@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>View User — Admin — OCMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        :root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #242424; --border: #2e2e2e; --accent: #e8ff47; --accent2: #47c8ff; --text: #f0f0f0; --text-muted: #888; --danger: #ff4747; --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-body); }
+        nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; }
+        .nav-brand { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--accent); text-decoration: none; }
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; list-style: none; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; padding: 0.4rem 0.8rem; border-radius: 8px; transition: all 0.2s; }
+        .nav-links a:hover { color: var(--text); background: var(--surface2); }
+        .nav-logout { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 8px; cursor: pointer; font-family: var(--font-body); font-size: 0.9rem; transition: all 0.2s; }
+        .nav-logout:hover { border-color: var(--danger); color: var(--danger); }
+        main { max-width: 680px; margin: 0 auto; padding: 2.5rem 2rem; }
+        .breadcrumb { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+        .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+        .breadcrumb a:hover { color: var(--accent); }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin-bottom: 1.2rem; }
+        .card-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+        .info-row { display: flex; justify-content: space-between; padding: 0.7rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: var(--text-muted); }
+        .badge { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge-instructor { background: #e8ff4720; color: var(--accent); border: 1px solid #e8ff4740; }
+        .badge-student { background: #47c8ff20; color: var(--accent2); border: 1px solid #47c8ff40; }
+        .badge-admin { background: #ff474720; color: var(--danger); border: 1px solid #ff474740; }
+        .actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+        .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.2rem; border-radius: 8px; font-family: var(--font-body); font-size: 0.9rem; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: all 0.2s; }
+        .btn-primary { background: var(--accent); color: #0f0f0f; }
+        .btn-primary:hover { background: #d4eb30; }
+        .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { border-color: var(--text-muted); }
+        .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+        .btn-danger:hover { background: var(--danger); color: white; }
+        .btn-warning { background: transparent; color: #ffaa47; border: 1px solid #ffaa47; }
+        .btn-warning:hover { background: #ffaa47; color: #0f0f0f; }
+    </style>
+</head>
+<body>
+<nav>
+    <a class="nav-brand" href="/course/view/courses">OCMS</a>
+    <ul class="nav-links">
+        <li><a href="/course/view/courses">Courses</a></li>
+        <li><a href="/admin/view/users">Admin</a></li>
+        <li><a href="/user/view/dashboard">Dashboard</a></li>
+        <li>
+            <form th:action="@{/logout}" method="post" style="display:inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button class="nav-logout" type="submit">Logout</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+<main>
+    <div class="breadcrumb">
+        <a href="/admin/view/users">Users</a> / <span th:text="${user.name}">User</span>
+    </div>
+
+    <!-- User Info -->
+    <div class="card">
+        <div class="card-title">User Details</div>
+        <div class="info-row">
+            <span class="info-label">ID</span>
+            <span th:text="${user.id}">1</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Name</span>
+            <span th:text="${user.name}">Name</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Email</span>
+            <span th:text="${user.email}">email</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Contact</span>
+            <span th:text="${user.contact}">contact</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Global Role</span>
+            <span class="badge badge-instructor" th:if="${user.globalRole == 'INSTRUCTOR'}" th:text="${user.globalRole}"></span>
+            <span class="badge badge-student" th:if="${user.globalRole == 'STUDENT'}" th:text="${user.globalRole}"></span>
+            <span class="badge badge-admin" th:if="${user.globalRole == 'ADMIN'}" th:text="${user.globalRole}"></span>
+        </div>
+    </div>
+
+    <!-- Admin Actions -->
+    <div class="card" th:if="${user.globalRole != 'ADMIN'}">
+        <div class="card-title">Actions</div>
+        <div class="actions">
+            <!-- Promote to Instructor -->
+            <form th:if="${user.globalRole == 'STUDENT'}"
+                  th:action="@{/admin/view/users/{id}/promote(id=${user.id})}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-primary">Promote to Instructor</button>
+            </form>
+
+            <!-- Demote to Student -->
+            <form th:if="${user.globalRole == 'INSTRUCTOR'}"
+                  th:action="@{/admin/view/users/{id}/demote(id=${user.id})}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-warning">Demote to Student</button>
+            </form>
+
+            <!-- Delete User -->
+            <form th:action="@{/admin/view/users/{id}/delete(id=${user.id})}" method="post"
+                  onsubmit="return confirm('Delete this user permanently?')">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="_method" value="DELETE"/>
+                <button type="submit" class="btn btn-danger">Delete User</button>
+            </form>
+        </div>
+    </div>
+
+    <a href="/admin/view/users" class="btn btn-secondary">← Back to Users</a>
+</main>
+</body>
+</html>

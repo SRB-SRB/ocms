@@ -1,19 +1,17 @@
 package com.info.ocms.service.serviceImpl;
 
+import com.info.ocms.constants.RoleInCourse;
 import com.info.ocms.dto.AssignmentRequest;
 import com.info.ocms.dto.AssignmentResponse;
 import com.info.ocms.dto.FileResponse;
 import com.info.ocms.dto.UpdateAssignmentRequest;
-import com.info.ocms.model.Assignment;
-import com.info.ocms.model.AssignmentFile;
-import com.info.ocms.model.Course;
-import com.info.ocms.ropository.AssignmentFileRepo;
-import com.info.ocms.ropository.AssignmentRepo;
-import com.info.ocms.ropository.CourseRepo;
+import com.info.ocms.model.*;
+import com.info.ocms.ropository.*;
 import com.info.ocms.service.AssignmentService;
 import com.info.ocms.service.DocumentMasterService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.sql.init.SqlDataSourceScriptDatabaseInitializer;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,11 +29,36 @@ public class AssignmentServiceImpl implements AssignmentService {
     private final AssignmentFileRepo assignmentFileRepo;
     private final DocumentMasterService documentMasterService;
     private final CourseRepo courseRepo;
+    private final EnrollmentRepo enrollmentRepo;
+    private final UserRepo userRepo;
+
+    private User getCurrentUser(){
+        String email= SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+       return userRepo.findByEmail(email).orElseThrow(()->new RuntimeException("Authenticated User Not Found"));
+    }
+
+
+    private void checkCourseInstructor(User user, Course course){
+        Enrollment enrollment=enrollmentRepo.findByUserAndCourse(user, course).orElseThrow(()->new AccessDeniedException("You are not enrolled in this course"));
+        if(enrollment.getRoleInCourse()!= RoleInCourse.INSTRUCTOR){
+            throw new AccessDeniedException("Only course Instructor can manage Assignments");
+        }
+    }
+
 
     @Override
+    @Transactional
     public AssignmentResponse createAssignment(AssignmentRequest assignmentRequest) throws IOException {
+        User currentUser=getCurrentUser();
+        Course course=courseRepo.findById(assignmentRequest.getCourseId()).orElseThrow(()-> new RuntimeException("Course Not Found"));
+
+        checkCourseInstructor(currentUser,course);
+
+
         Assignment assignment=mapToAssignment(assignmentRequest);
-        assignment.setCourse(courseRepo.findById(assignmentRequest.getCourseId()).orElseThrow(()->new RuntimeException("Course Not Found")));
+        assignment.setCourse(course);
         Assignment savedAssignment=assignmentRepo.save(assignment);
         if(assignmentRequest.getAssignmentFiles()!=null && !assignmentRequest.getAssignmentFiles().isEmpty()){
             assignment.setAssignmentFiles(saveAssignmentFiles(assignmentRequest.getAssignmentFiles(),savedAssignment));
@@ -50,9 +73,11 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public List<AssignmentResponse> getAllAssignments() {
+    public List<AssignmentResponse> getAssignmentsByCourse(Long courseId) {
+        Course course=courseRepo.findById(courseId).orElseThrow(()-> new RuntimeException("Course Not Found"));
+
         List<AssignmentResponse> assignmentResponses=new ArrayList<>();
-        for(Assignment assignment:assignmentRepo.findAll()){
+        for(Assignment assignment:assignmentRepo.findByCourse(course)){
            assignmentResponses.add(mapToAssignmentResponse(assignment));
         }
         return assignmentResponses;
@@ -61,7 +86,10 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     @Transactional
     public AssignmentResponse updateAssignment(UpdateAssignmentRequest updateAssignmentRequest) throws IOException{
+        User user=getCurrentUser();
         Assignment existingAssignment=assignmentRepo.findById(updateAssignmentRequest.getId()).orElseThrow(()->new RuntimeException("Assignment Not Found"));
+        checkCourseInstructor(user,existingAssignment.getCourse());
+
         existingAssignment.setTitle(updateAssignmentRequest.getTitle());
         existingAssignment.setDescription(updateAssignmentRequest.getDescription());
         existingAssignment.setDueDate(updateAssignmentRequest.getDueDate());
@@ -91,7 +119,10 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     @Transactional
     public void deleteAssignmentById(Long id) {
+        User currentUser=getCurrentUser();
         Assignment assignment=assignmentRepo.findById(id).orElseThrow(()-> new RuntimeException("Assignment Not Found"));
+        checkCourseInstructor(currentUser,assignment.getCourse());
+
         for(AssignmentFile assignmentFile:assignment.getAssignmentFiles()){
             documentMasterService.deleteByDocumentGuide(assignmentFile.getDocumentGuid());
         }
@@ -122,10 +153,9 @@ public class AssignmentServiceImpl implements AssignmentService {
             fileResponses.add(fileResponse);
         }
         assignmentResponse.setAssignmentFiles(fileResponses);
-//        courseRepo.findById(assignment.getId()).orElseThrow(()->new RuntimeException("Course Not Found"))
        Course course= assignment.getCourse();
         assignmentResponse.setCourseName(course.getTitle());
-        assignmentResponse.setCourseId(assignment.getId());
+        assignmentResponse.setCourseId(course.getId());
         return assignmentResponse;
     }
     private List<AssignmentFile> saveAssignmentFiles(List<MultipartFile> files, Assignment assignment)throws IOException {
