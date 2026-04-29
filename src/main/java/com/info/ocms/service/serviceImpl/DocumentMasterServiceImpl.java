@@ -47,7 +47,6 @@ public class DocumentMasterServiceImpl implements DocumentMasterService {
         documentMaster.setFileExtension(StringUtils.getFilenameExtension(file.getOriginalFilename()));
         documentMaster.setMimeType(file.getContentType());
         documentMaster.setUrl(saveFile(file));
-        documentMaster.setFileSize(file.getSize());
         documentMaster.setFileName(file.getOriginalFilename());
         documentMaster.setDocumentType(documentType);
        return mapToFileResponse(documentMasterRepo.save(documentMaster)) ;
@@ -99,6 +98,8 @@ public class DocumentMasterServiceImpl implements DocumentMasterService {
         documentMasterResponse.setFileExtension(documentMaster.getFileExtension());
         documentMasterResponse.setFileName(documentMaster.getFileName());
         documentMasterResponse.setDocumentType(documentMaster.getDocumentType());
+        documentMasterResponse.setFilePath(documentMaster.getUrl());
+        documentMasterResponse.setMimeType(documentMaster.getMimeType());
         return documentMasterResponse;
     }
 

@@ -18,4 +18,5 @@ public interface SubmittedAssignmentService {
 
     SubmittedAssignmentResponse updateSubmittedAssignment(UpdateStudentSubmittedAssignmentRequest updateStudentSubmittedAssignmentRequest) throws IOException;
     List<SubmittedAssignmentResponse> getMySubmissions();
+    Long deleteSubmittedAssignment(Long id);
 }

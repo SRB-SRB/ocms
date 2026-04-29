@@ -16,6 +16,6 @@ public class DocumentMasterResponse {
     private String mimeType;
     private String fileName;
     private String documentType;
-    private String fileSize;
+   private String filePath;
 
 }

@@ -1,18 +1,9 @@
 package com.info.ocms.service.serviceImpl;
 
 import com.info.ocms.constants.RoleInCourse;
-import com.info.ocms.dto.CourseRequest;
-import com.info.ocms.dto.CourseResponse;
-import com.info.ocms.dto.FileResponse;
-import com.info.ocms.dto.UpdateCourseRequest;
-import com.info.ocms.model.Course;
-import com.info.ocms.model.CourseFile;
-import com.info.ocms.model.Enrollment;
-import com.info.ocms.model.User;
-import com.info.ocms.ropository.CourseFileRepo;
-import com.info.ocms.ropository.CourseRepo;
-import com.info.ocms.ropository.EnrollmentRepo;
-import com.info.ocms.ropository.UserRepo;
+import com.info.ocms.dto.*;
+import com.info.ocms.model.*;
+import com.info.ocms.ropository.*;
 import com.info.ocms.service.CourseService;
 import com.info.ocms.service.DocumentMasterService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +27,8 @@ public class CourseServiceImpl implements CourseService {
     private final CourseFileRepo courseFileRepo;
     private final UserRepo userRepo;
     private final EnrollmentRepo enrollmentRepo;
+    private final AssignmentRepo assignmentRepo;
+    private final SubmittedAssignmentRepo submittedAssignmentRepo;
 
     private User getCurrentUser(){
         String email= SecurityContextHolder.getContext()
@@ -137,6 +130,11 @@ public class CourseServiceImpl implements CourseService {
         for (CourseFile courseFile:course.getCourseFiles()){
            documentMasterService.deleteByDocumentGuide(courseFile.getDocumentGuid());
         }
+        List<Assignment> assignments=assignmentRepo.findByCourse(course);
+        for(Assignment assignment:assignments){
+            submittedAssignmentRepo.deleteByAssignment(assignment);
+        }
+        assignmentRepo.deleteByCourse(course);
         courseRepo.deleteById(id);
     }
 
@@ -159,6 +157,7 @@ public class CourseServiceImpl implements CourseService {
                 FileResponse fileResponse=new FileResponse();
                 fileResponse.setId(courseFile.getId());
                 fileResponse.setDocumentGuide(courseFile.getDocumentGuid());
+                fileResponse.setFileName(courseFile.getFileName());
                 fileResponses.add(fileResponse);
             }
             courseResponse.setCourseFiles(fileResponses);
@@ -172,7 +171,9 @@ public class CourseServiceImpl implements CourseService {
         for(MultipartFile file: files){
             if(file!=null && !file.isEmpty()) {
                 CourseFile courseFile = new CourseFile();
-                courseFile.setDocumentGuid(documentMasterService.createFile(file, "course_file").getDocumentGuid());
+                DocumentMasterResponse documentMasterResponse =documentMasterService.createFile(file, "course_file");
+                courseFile.setDocumentGuid(documentMasterResponse.getDocumentGuid());
+                courseFile.setFileName(documentMasterResponse.getFileName());
                 courseFile.setCourse(course);
                 courseFiles.add(courseFileRepo.save(courseFile));
             }

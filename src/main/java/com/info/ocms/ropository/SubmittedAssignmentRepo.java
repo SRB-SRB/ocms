@@ -11,4 +11,6 @@ public interface SubmittedAssignmentRepo extends JpaRepository<SubmittedAssignme
     List<SubmittedAssignment> findByAssignment(Assignment assignment);
     Optional<SubmittedAssignment> findByUserIdAndAssignment(Long userId,Assignment assignment);
     List<SubmittedAssignment> findByUserId(Long userId);
+    void deleteByAssignment(Assignment assignment);
+    Optional<SubmittedAssignment> findByUserIdAndAssignmentId(Long userId,Long assignmentId);
 }

@@ -22,7 +22,6 @@ public class DocumentMaster {
     private String url;
     private String fileName;
     private String documentType;
-    private long fileSize;
 
 
 }

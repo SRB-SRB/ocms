@@ -103,7 +103,7 @@ public class SubmittedAssignmentServiceImpl implements SubmittedAssignmentServic
         User currentUser=getCurrentUser();
         SubmittedAssignment existingSubmittedAssignment=submittedAssignmentRepo.findById(updateStudentSubmittedAssignmentRequest.getId()).orElseThrow(()->new RuntimeException("Submitted Assignment Not Found"));
         if(!existingSubmittedAssignment.getUserId().equals(currentUser.getId())){
-            throw new AccessDeniedException("You can update your own submission");
+            throw new AccessDeniedException("You can only update your own submission");
         }
         if(existingSubmittedAssignment.getGrade()!=null){throw new RuntimeException("Your Submitted Assignment Is Already Graded : UPDATE NOT ALLOWED");}
         var existingFiles=existingSubmittedAssignment.getSubmittedAssignmentFiles();
@@ -136,12 +136,34 @@ public class SubmittedAssignmentServiceImpl implements SubmittedAssignmentServic
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional
+    public Long deleteSubmittedAssignment(Long id) {
+        User currentUser=getCurrentUser();
+        SubmittedAssignment existingSubmittedAssignment=submittedAssignmentRepo.findById(id).orElseThrow(()->new RuntimeException("Submitted Assignment Not Found"));
+        if(!existingSubmittedAssignment.getUserId().equals(currentUser.getId())){
+            throw new AccessDeniedException("You can only delete your own submission");
+        }
+        if(existingSubmittedAssignment.getGrade()!=null){
+            throw new RuntimeException("Your Submitted Assignment Is Already Graded: DELETE NOT ALLOWED");
+        }
+        var existingFiles=existingSubmittedAssignment.getSubmittedAssignmentFiles();
+        for(var existingFile:existingFiles){
+            documentMasterService.deleteByDocumentGuide(existingFile.getDocumentGuid());
+            submittedAssignmentFileRepo.deleteById(existingFile.getId());
+        }
+        submittedAssignmentRepo.deleteById(id);
+        return existingSubmittedAssignment.getAssignment().getId();
+    }
+
     private List<SubmittedAssignmentFile> saveSubmittedAssignmentFiles(List<MultipartFile> files, SubmittedAssignment submittedAssignment)throws IOException {
         List<SubmittedAssignmentFile> submittedAssignmentFiles=new ArrayList<>();
         for(MultipartFile file: files){
             if(file!=null && !file.isEmpty()) {
                 SubmittedAssignmentFile submittedAssignmentFile = new SubmittedAssignmentFile();
-                submittedAssignmentFile.setDocumentGuid(documentMasterService.createFile(file, "assignment_file").getDocumentGuid());
+                DocumentMasterResponse documentMasterResponse=documentMasterService.createFile(file, "assignment_file");
+                submittedAssignmentFile.setDocumentGuid(documentMasterResponse.getDocumentGuid());
+                submittedAssignmentFile.setFileName(documentMasterResponse.getFileName());
                 submittedAssignmentFile.setSubmittedAssignment(submittedAssignment);
                 submittedAssignmentFiles.add(submittedAssignmentFileRepo.save(submittedAssignmentFile));
             }
@@ -164,6 +186,7 @@ public class SubmittedAssignmentServiceImpl implements SubmittedAssignmentServic
             FileResponse fileResponse=new FileResponse();
             fileResponse.setId(submittedAssignmentFile.getId());
             fileResponse.setDocumentGuide(submittedAssignmentFile.getDocumentGuid());
+            fileResponse.setFileName(submittedAssignmentFile.getFileName());
             fileResponses.add(fileResponse);
         }
         submittedAssignmentResponse.setSubmittedAssignmentFiles(fileResponses);

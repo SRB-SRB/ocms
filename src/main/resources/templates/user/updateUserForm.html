@@ -46,9 +46,9 @@
 <nav>
     <a class="nav-brand" href="/course/view/courses">OCMS</a>
     <ul class="nav-links">
-        <li><a href="/course/view/courses">Courses</a></li>
+        <li sec:authorize="hasAnyRole('INSTRUCTOR', 'STUDENT')"><a href="/course/view/courses">Courses</a></li>
         <li sec:authorize="hasRole('INSTRUCTOR')"><a href="/course/view/createCourse">+ New Course</a></li>
-        <li sec:authorize="hasRole('ADMIN')"><a href="/admin/view/users">Admin</a></li>
+        <li sec:authorize="hasRole('ADMIN')"><a href="/admin/view/users">All Users</a></li>
         <li><a href="/user/view/dashboard">Dashboard</a></li>
         <li>
             <form th:action="@{/logout}" method="post" style="display:inline">

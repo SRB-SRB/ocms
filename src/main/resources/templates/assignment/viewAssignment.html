@@ -79,7 +79,10 @@
         <div class="actions">
             <!-- Student actions -->
             <a th:href="@{/submittedAssignment/view/submitAssignment/{id}(id=${assignmentId})}"
-               class="btn btn-primary" th:if="${isEnrolled and !canManage}">Submit Assignment</a>
+               class="btn btn-primary" th:if="${isEnrolled and !canManage and submittedAssignment==null}">Submit Assignment</a>
+            <a th:href="@{/submittedAssignment/view/viewSubmittedAssignment/{id}(id=${submittedAssignment.getId()})}"
+               class="btn btn-secondary"
+               th:if="${submittedAssignment!=null}">View Your Submission</a>
 
             <!-- Instructor actions -->
             <a th:href="@{/submittedAssignment/view/submissions/{id}(id=${assignmentId})}"
@@ -102,8 +105,13 @@
         <div class="section-title">Assignment Files</div>
         <div th:if="${#lists.isEmpty(assignmentResponse.assignmentFiles)}" class="empty-text">No files attached</div>
         <div th:each="file : ${assignmentResponse.assignmentFiles}" class="file-item">
-            <span>📄</span>
-            <span th:text="${file.documentGuide}">file</span>
+            <span class="file-icon">📄</span>
+            <span style="flex:1" th:text="${file.fileName}">filename</span>
+            <a th:href="@{/assignment/view/file/download/{guid}(guid=${file.documentGuide})}"
+               class="btn btn-info"
+               style="padding:0.3rem 0.8rem;font-size:0.8rem">
+                ⬇ Download
+            </a>
         </div>
     </div>
 </main>

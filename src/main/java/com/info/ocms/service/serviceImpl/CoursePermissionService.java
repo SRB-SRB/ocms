@@ -1,9 +1,13 @@
 package com.info.ocms.service.serviceImpl;
 
 import com.info.ocms.constants.RoleInCourse;
+import com.info.ocms.model.Assignment;
 import com.info.ocms.model.Course;
+import com.info.ocms.model.SubmittedAssignment;
 import com.info.ocms.model.User;
+import com.info.ocms.ropository.AssignmentRepo;
 import com.info.ocms.ropository.EnrollmentRepo;
+import com.info.ocms.ropository.SubmittedAssignmentRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +15,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CoursePermissionService {
     private final EnrollmentRepo enrollmentRepo;
+    private final SubmittedAssignmentRepo submittedAssignmentRepo;
+
 
     public boolean isCourseInstructor(User user, Course course){
         return enrollmentRepo.findByUserAndCourse(user,course)
@@ -25,11 +31,15 @@ public class CoursePermissionService {
     public boolean canManageContent(User user,Course course){
         return isCourseInstructor(user,course);
     }
-    public boolean canDelete(User user,Course course){
-        return isCourseOwner(user,course);
-    }
+//    public boolean canDelete(User user,Course course){
+//        return isCourseOwner(user,course);
+//    }
     public boolean canPromote(User user,Course course){
         return isCourseOwner(user,course);
     }
+   public SubmittedAssignment submittedAssignment(Long userId,Long assignmentId){
+        return submittedAssignmentRepo.findByUserIdAndAssignmentId(userId,assignmentId).orElse(null);
+   }
+
 
 }

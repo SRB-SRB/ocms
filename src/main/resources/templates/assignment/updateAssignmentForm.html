@@ -29,7 +29,7 @@
         textarea { resize: vertical; min-height: 100px; }
         .existing-file { display: flex; align-items: center; gap: 0.8rem; padding: 0.6rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
         .existing-file:last-child { border-bottom: none; }
-        .existing-file input[type="checkbox"] { accent-color: var(--accent); }
+        .existing-file input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
         .file-upload { border: 2px dashed var(--border); border-radius: 8px; padding: 1.2rem; text-align: center; transition: border-color 0.2s; }
         .file-upload:hover { border-color: var(--accent); }
         .file-upload input[type="file"] { display: none; }
@@ -90,7 +90,7 @@
             <div th:each="file : ${updateAssignmentRequest.existingFiles}" class="existing-file">
                 <input type="checkbox" name="keepFilesIds" th:value="${file.id}" checked/>
                 <span>📄</span>
-                <span th:text="${file.documentGuide}">file</span>
+                <span th:text="${file.fileName}">file</span>
             </div>
         </div>
 

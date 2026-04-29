@@ -75,6 +75,15 @@
             <a th:href="@{/enrollment/view/enroll/{id}(id=${courseId})}"
                class="btn btn-primary" th:if="${!isEnrolled}">Enroll Now</a>
 
+            <form th:if="${isEnrolled && !isOwner}"
+                  th:action="@{/enrollment/view/cancel/{id}(id=${courseId})}"
+                  method="post" style="display:inline"
+                  onsubmit="return confirm('Are you sure you want to un-enroll?')">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="_method" value="DELETE"/>
+                <button type="submit" class="btn btn-danger">Un-Enroll</button>
+            </form>
+
             <!-- Manage buttons — for course instructors -->
             <a th:href="@{/assignment/view/assignments/{id}(id=${courseId})}"
                class="btn btn-secondary" th:if="${isEnrolled}">Assignments</a>
@@ -98,7 +107,7 @@
     </div>
 
     <!-- Course Files -->
-    <div class="section">
+    <div class="section" th:if="${isEnrolled}">
         <div class="section-title">
             Course Files
             <span style="font-size:0.8rem;color:var(--text-muted);font-weight:400"
@@ -109,7 +118,12 @@
         </div>
         <div th:each="file : ${courseResponse.courseFiles}" class="file-item">
             <span class="file-icon">📄</span>
-            <span th:text="${file.documentGuide}">filename</span>
+            <span style="flex:1" th:text="${file.fileName}">filename</span>
+            <a th:href="@{/course/view/file/download/{guid}(guid=${file.documentGuide})}"
+               class="btn btn-info"
+               style="padding:0.3rem 0.8rem;font-size:0.8rem">
+                ⬇ Download
+            </a>
         </div>
     </div>
 

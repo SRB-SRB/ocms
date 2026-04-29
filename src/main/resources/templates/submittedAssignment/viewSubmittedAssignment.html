@@ -90,8 +90,13 @@
         <div th:if="${#lists.isEmpty(submittedAssignmentResponse.submittedAssignmentFiles)}"
              style="color:var(--text-muted);font-size:0.9rem">No files submitted</div>
         <div th:each="file : ${submittedAssignmentResponse.submittedAssignmentFiles}" class="file-item">
-            <span>📄</span>
-            <span th:text="${file.documentGuide}">file</span>
+            <span class="file-icon">📄</span>
+            <span style="flex:1" th:text="${file.fileName}">filename</span>
+            <a th:href="@{/submittedAssignment/view/file/download/{guid}(guid=${file.documentGuide})}"
+               class="btn btn-info"
+               style="padding:0.3rem 0.8rem;font-size:0.8rem">
+                ⬇ Download
+            </a>
         </div>
     </div>
 
@@ -101,6 +106,12 @@
         <a th:href="@{/submittedAssignment/view/updateSubmittedAssignment/{id}(id=${submittedAssignmentId})}"
            class="btn btn-secondary"
            th:if="${isOwner and submittedAssignmentResponse.grade == null}">Edit Submission</a>
+        <form th:action="@{/submittedAssignment/view/deleteSubmittedAssignment/{id}(id=${submittedAssignmentId})}"
+              method="post"
+              th:if="${isOwner and submittedAssignmentResponse.grade == null}">
+            <input type="hidden" name="_method" value="DELETE"/>
+            <button type="submit" class="btn btn-danger">DELETE</button>
+        </form>
 
         <!-- Instructor can grade -->
         <a th:href="@{/submittedAssignment/view/gradeSubmittedAssignment/{id}(id=${submittedAssignmentId})}"

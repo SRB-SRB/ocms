@@ -2,6 +2,7 @@ package com.info.ocms.controller.viewController;
 
 import com.info.ocms.dto.CourseRequest;
 import com.info.ocms.dto.CourseResponse;
+import com.info.ocms.dto.DocumentMasterResponse;
 import com.info.ocms.dto.UpdateCourseRequest;
 import com.info.ocms.model.Course;
 import com.info.ocms.model.User;
@@ -9,8 +10,14 @@ import com.info.ocms.ropository.CourseRepo;
 import com.info.ocms.ropository.EnrollmentRepo;
 import com.info.ocms.ropository.UserRepo;
 import com.info.ocms.service.CourseService;
+import com.info.ocms.service.DocumentMasterService;
 import com.info.ocms.service.serviceImpl.CoursePermissionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +26,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Controller
@@ -30,6 +40,7 @@ public class CourseViewController {
     private final UserRepo userRepo;
     private final CourseRepo courseRepo;
     private final EnrollmentRepo enrollmentRepo;
+    private final DocumentMasterService documentMasterService;
 
     private User getCurrentUser(){
         String email= SecurityContextHolder.getContext()
@@ -101,6 +112,18 @@ public class CourseViewController {
     public String deleteCourse(@PathVariable Long id){
         courseService.deleteCourseById(id);
         return "redirect:/course/view/courses";
+    }
+    @GetMapping("/file/download/{documentGuide}")
+    @ResponseBody
+    public ResponseEntity<Resource> downloadFile(@PathVariable String documentGuide) throws IOException{
+        DocumentMasterResponse documentMasterResponse=documentMasterService.getByDocumentGuide(documentGuide);
+        Path filePath= Paths.get(documentMasterResponse.getFilePath());
+        Resource resource=new UrlResource(filePath.toUri());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\""+documentMasterResponse.getFileName()+"\"")
+                .contentType(MediaType.parseMediaType(documentMasterResponse.getMimeType()))
+                .body(resource);
     }
 
 }

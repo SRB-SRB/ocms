@@ -3,8 +3,10 @@ package com.info.ocms.controller.viewController;
 import com.info.ocms.dto.EnrollmentRequest;
 import com.info.ocms.dto.EnrollmentResponse;
 import com.info.ocms.model.Course;
+import com.info.ocms.model.Enrollment;
 import com.info.ocms.model.User;
 import com.info.ocms.ropository.CourseRepo;
+import com.info.ocms.ropository.EnrollmentRepo;
 import com.info.ocms.ropository.UserRepo;
 import com.info.ocms.service.EnrollmentService;
 import com.info.ocms.service.serviceImpl.CoursePermissionService;
@@ -26,8 +28,9 @@ public class EnrollmentViewController {
     private final CoursePermissionService coursePermissionService;
     private final CourseRepo courseRepo;
     private final UserRepo userRepo;
+    private final EnrollmentRepo enrollmentRepo;
 
-    // ─── Get current user from session ────────────────────────────────────────
+
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -36,13 +39,12 @@ public class EnrollmentViewController {
                 .orElseThrow(() -> new RuntimeException("Authenticated User Not Found"));
     }
 
-    // ─── Helper ───────────────────────────────────────────────────────────────
+
     private Course getCourse(Long id) {
         return courseRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Course Not Found"));
     }
 
-    // ─── Show enroll confirmation page ────────────────────────────────────────
     @GetMapping("/enroll/{courseId}")
     public String showEnrollPage(@PathVariable Long courseId, Model model) {
         Course course = getCourse(courseId);
@@ -51,7 +53,6 @@ public class EnrollmentViewController {
         return "enrollment/enroll";
     }
 
-    // ─── Enroll student in course ─────────────────────────────────────────────
     @PostMapping("/enroll")
     public String enroll(@RequestParam Long courseId) {
         User currentUser = getCurrentUser();
@@ -64,22 +65,20 @@ public class EnrollmentViewController {
         return "redirect:/course/view/viewCourse/" + courseId;
     }
 
-    // ─── Cancel enrollment ────────────────────────────────────────────────────
-    @DeleteMapping("/cancel/{enrollmentId}")
-    public String cancelEnrollment(@PathVariable Long enrollmentId,
-                                   @RequestParam Long courseId) {
-        // ✅ Service checks if owner before cancelling
-        enrollmentService.cancelEnrollment(enrollmentId);
+    @DeleteMapping("/cancel/{courseId}")
+    public String cancelEnrollment(@PathVariable Long courseId) {
+        User currentUser=getCurrentUser();
+
+        Enrollment enrollment=enrollmentRepo.findByUserAndCourse(currentUser,getCourse(courseId)).orElseThrow(()->new RuntimeException("User Not enrolled in this Course"));
+        enrollmentService.cancelEnrollment(enrollment.getId());
         return "redirect:/course/view/viewCourse/" + courseId;
     }
 
-    // ─── View all enrollments for a course (instructor only) ──────────────────
     @GetMapping("/course/{courseId}")
     public String getCourseEnrollments(@PathVariable Long courseId, Model model) {
         User currentUser = getCurrentUser();
         Course course = getCourse(courseId);
 
-        // ✅ Only course instructor can see all enrollments
         if (!coursePermissionService.canManageContent(currentUser, course)) {
             throw new AccessDeniedException("Only course instructors can view enrollments");
         }
@@ -91,14 +90,12 @@ public class EnrollmentViewController {
         return "enrollment/courseEnrollments";
     }
 
-    // ─── Promote student to course instructor ─────────────────────────────────
     @PostMapping("/promote")
     public String promoteToInstructor(@RequestParam Long userId,
                                       @RequestParam Long courseId) {
         User currentUser = getCurrentUser();
         Course course = getCourse(courseId);
 
-        // ✅ Only course owner can promote
         if (!coursePermissionService.canPromote(currentUser, course)) {
             throw new AccessDeniedException("Only the course owner can promote students");
         }
@@ -107,14 +104,12 @@ public class EnrollmentViewController {
         return "redirect:/enrollment/view/course/" + courseId;
     }
 
-    // ─── Demote course instructor back to student ──────────────────────────────
     @PostMapping("/demote")
     public String demoteToStudent(@RequestParam Long userId,
                                   @RequestParam Long courseId) {
         User currentUser = getCurrentUser();
         Course course = getCourse(courseId);
 
-        // ✅ Only course owner can demote
         if (!coursePermissionService.canPromote(currentUser, course)) {
             throw new AccessDeniedException("Only the course owner can demote instructors");
         }

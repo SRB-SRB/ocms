@@ -79,9 +79,9 @@
 <nav>
     <a class="nav-brand" href="/course/view/courses">OCMS</a>
     <ul class="nav-links">
-        <li><a href="/course/view/courses">Courses</a></li>
+        <li sec:authorize="hasAnyRole('INSTRUCTOR', 'STUDENT')"><a href="/course/view/courses">Courses</a></li>
         <li sec:authorize="hasRole('INSTRUCTOR')"><a href="/course/view/createCourse">+ New Course</a></li>
-        <li sec:authorize="hasRole('ADMIN')"><a href="/admin/view/users">Admin</a></li>
+        <li sec:authorize="hasRole('ADMIN')"><a href="/admin/view/users">ALL Users</a></li>
         <li><a href="/user/view/dashboard" style="color:var(--text);background:var(--surface2)">Dashboard</a></li>
         <li>
             <form th:action="@{/logout}" method="post" style="display:inline">
@@ -98,8 +98,8 @@
             <p>Welcome back to your learning dashboard</p>
         </div>
         <div class="welcome-actions">
-            <a href="/user/view/update" class="btn btn-secondary">Edit Profile</a>
-            <a href="/course/view/courses" class="btn btn-primary">Browse Courses</a>
+           <a href="/user/view/update" class="btn btn-secondary">Edit Profile</a>
+          <a href="/course/view/courses" class="btn btn-primary" sec:authorize="hasAnyRole('INSTRUCTOR', 'STUDENT')">Browse Courses</a>
         </div>
     </div>
 

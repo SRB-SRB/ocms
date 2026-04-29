@@ -17,7 +17,7 @@ public class SubmittedAssignmentFile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String documentGuid;
-
+    private String fileName;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "submittedAssignment_id")

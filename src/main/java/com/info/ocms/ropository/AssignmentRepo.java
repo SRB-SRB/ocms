@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface AssignmentRepo extends JpaRepository<Assignment,Long> {
     List<Assignment> findByCourse(Course course);
+    void deleteByCourse(Course course);
 }

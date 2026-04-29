@@ -1,10 +1,7 @@
 package com.info.ocms.service.serviceImpl;
 
 import com.info.ocms.constants.RoleInCourse;
-import com.info.ocms.dto.AssignmentRequest;
-import com.info.ocms.dto.AssignmentResponse;
-import com.info.ocms.dto.FileResponse;
-import com.info.ocms.dto.UpdateAssignmentRequest;
+import com.info.ocms.dto.*;
 import com.info.ocms.model.*;
 import com.info.ocms.ropository.*;
 import com.info.ocms.service.AssignmentService;
@@ -150,6 +147,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             FileResponse fileResponse=new FileResponse();
             fileResponse.setId(assignmentFile.getId());
             fileResponse.setDocumentGuide(assignmentFile.getDocumentGuid());
+            fileResponse.setFileName(assignmentFile.getFileName());
             fileResponses.add(fileResponse);
         }
         assignmentResponse.setAssignmentFiles(fileResponses);
@@ -163,7 +161,9 @@ public class AssignmentServiceImpl implements AssignmentService {
         for(MultipartFile file: files){
             if(file!=null && !file.isEmpty()) {
                 AssignmentFile assignmentFile = new AssignmentFile();
-                assignmentFile.setDocumentGuid(documentMasterService.createFile(file, "assignment_file").getDocumentGuid());
+                DocumentMasterResponse documentMasterResponse=documentMasterService.createFile(file, "assignment_file");
+                assignmentFile.setDocumentGuid(documentMasterResponse.getDocumentGuid());
+                assignmentFile.setFileName(documentMasterResponse.getFileName());
                 assignmentFile.setAssignment(assignment);
                 assignmentFiles.add(assignmentFileRepo.save(assignmentFile));
             }
